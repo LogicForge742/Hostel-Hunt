@@ -1,10 +1,11 @@
-import {BrowserRouter} from 'react-router-dom';
-import AppRouter from './routes/AppRouter.jsx'
+import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppRouter/>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
