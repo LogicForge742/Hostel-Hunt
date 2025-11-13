@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-/**
+/** 
  * @param {number} delay - Debounce delay in milliseconds (default: 500)
  * @returns {object} Search state and methods
  */
