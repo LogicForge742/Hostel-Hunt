@@ -10,7 +10,10 @@ import SignupPage from '../pages/auth/SignupPage.jsx';
 import SearchResultsPage from '../pages/search/SearchResultsPage.jsx';
 import HostelDetailPage from '../pages/hostel/HostelDetailPage.jsx';
 import BookingPage from '../pages/booking/BookingPage.jsx';
-import Dashboard from '../pages/dashboard/DashboardLayout.jsx'
+import ConfirmationPage from '../pages/booking/ConfirmationPage.jsx';
+import DashboardLayout from '../pages/dashboard/DashboardLayout.jsx';
+import BookingHistory from '../pages/dashboard/BookingHistory.jsx';
+import Favorites from '../pages/dashboard/Favorites.jsx';
 
 export default function AppRouter() {
   return (
@@ -26,8 +29,12 @@ export default function AppRouter() {
 
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/booking/:id" element={<BookingPage />} />
-          <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/booking/:hostelId" element={<BookingPage />} />
+          <Route path="/booking/confirmation/:bookingId" element={<ConfirmationPage />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<BookingHistory />} />
+            <Route path="favorites" element={<Favorites />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

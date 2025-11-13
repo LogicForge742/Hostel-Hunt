@@ -1,0 +1,75 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log*
+.pnpm-debug.log
+
+# Vite / Build
+dist/
+build/
+.vite/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs and Editors
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# WebStorm / IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Vim
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Logs
+logs
+*.log
+
+# Dependency directories (if using pnpm workspaces or similar)
+.pnpm-store/
+
+# Optional: Testing cache
+.jest/
+coverage/
+
+# Optional: Storybook build (if added later)
+storybook-static/
+
+# Optional: ESLint cache
+.eslintcache
+
+# Optional: TypeScript (if you ever add TS)
+*.tsbuildinfo
+
+
+
+
+
+# Optional: CI/CD artifacts
+.github/
+.git/
+
+# Keep your public assets (if any custom)
+!public/
