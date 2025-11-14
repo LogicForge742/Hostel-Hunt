@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useBooking } from '../../context/BookingContext.jsx';
+import Button from '../../components/Button.jsx';
 
 export default function BookingPage() {
   const { hostelId } = useParams();
@@ -105,12 +106,13 @@ export default function BookingPage() {
                   />
                 </div>
               </div>
-              <button
+              <Button
                 onClick={handleNext}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+                disabled={!bookingData.checkIn || !bookingData.checkOut}
+                variant="primary"
               >
                 Next
-              </button>
+              </Button>
             </div>
           )}
 
@@ -130,18 +132,18 @@ export default function BookingPage() {
                 </select>
               </div>
               <div className="flex space-x-4">
-                <button
+                <Button
                   onClick={() => setStep(1)}
-                  className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400"
+                  variant="secondary"
                 >
                   Back
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleNext}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+                  variant="primary"
                 >
                   Next
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -161,18 +163,18 @@ export default function BookingPage() {
                 </div>
               </div>
               <div className="flex space-x-4">
-                <button
+                <Button
                   onClick={() => setStep(2)}
-                  className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400"
+                  variant="secondary"
                 >
                   Back
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleConfirm}
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+                  variant="primary"
                 >
                   Confirm Booking
-                </button>
+                </Button>
               </div>
             </div>
           )}
