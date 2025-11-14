@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // hostel hunt brand colors
+        //brand colors
         primary: {
           50: '#faf5ff',
           100: '#f3e8ff',
@@ -15,7 +15,7 @@ export default {
           300: '#d8b4fe',
           400: '#c084fc',
           500: '#a855f7',
-          600: '#9333ea',  // main purple
+          600: '#9333ea',  //main purple
           700: '#7e22ce',
           800: '#6b21a8',
           900: '#581c87',
@@ -38,7 +38,7 @@ export default {
           200: '#fde68a',
           300: '#fcd34d',
           400: '#fbbf24',
-          500: '#f59e0b',  // Main orange
+          500: '#f59e0b',  // main orange
           600: '#d97706',
           700: '#b45309',
           800: '#92400e',
@@ -84,6 +84,5 @@ export default {
     },
   },
   plugins: [
-    
   ],
 }

@@ -1,61 +1,52 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-/** 
- * @param {number} delay - Debounce delay in milliseconds (default: 500)
- * @returns {object} Search state and methods
- */
 const useSearch = (delay = 500) => {
     const [searchParams, setSearchParams] = useSearchParams();
-    // the raw search input value (user typing)
-    const [searchTerm, setSearchTerm] = useState('');
-    // the debounced search term used for actual searching
-    const [debouncedTerm, setDebouncedTerm] = useState('');
+    // the raw search input value (user typing) - initialize lazily from URL once
+    const [searchTerm, setSearchTerm] = useState(() => searchParams.get('location') || '');
+    // the debounced search term used for actual searching - initialize from URL once
+    const [debouncedTerm, setDebouncedTerm] = useState(() => searchParams.get('location') || '');
     // indicates whether a search is currently in progress
     const [isSearching, setIsSearching] = useState(false);
 
-  // initialize from URL params
-    useEffect(() => {
-        const location = searchParams.get('location') || '';
-        setSearchTerm(location);
-        setDebouncedTerm(location);
-    }, [searchParams]);
+  // derive current location from URL params; avoid syncing state in an effect
+    const currentLocation = useMemo(() => searchParams.get('location') || '', [searchParams]);
+    // If URL location changes (navigation), reflect it by updating input state at update time
+    // Consumers should use "searchParams.location" for the authoritative URL-derived value.
 
   // debounce search term
     useEffect(() => {
         //start a timer to update debounced term after delay
         const timer = setTimeout(() => {
-        setDebouncedTerm(searchTerm);
-        setIsSearching(false);
+            setDebouncedTerm(searchTerm);
+            setIsSearching(false);
         }, delay);
-
-    // set searching state immediately when term changes
-        if (searchTerm !== debouncedTerm) {
-        setIsSearching(true);
-        }
         //cleanup function to clear timer if term changes before delay
         return () => clearTimeout(timer);
-    }, [searchTerm, delay, debouncedTerm]);
+    }, [searchTerm, delay]);
 
     //update search term
     const updateSearchTerm = useCallback((term) => {
         setSearchTerm(term);
+        // mark searching immediately on user input
+        setIsSearching(true);
     }, []);
 
     /* update URL search params*/
     const updateSearchParams = useCallback((params) => {
-        const newParams = new URLSearchParams(searchParams);
-        
-        Object.entries(params).forEach(([key, value]) => {
-        if (value) {
-            newParams.set(key, value);
-        } else {
-            newParams.delete(key);
-        }
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    newParams.set(key, Array.isArray(value) ? value.join(',') : String(value));
+                } else {
+                    newParams.delete(key);
+                }
+            });
+            return newParams;
         });
-
-        setSearchParams(newParams);
-    }, [searchParams, setSearchParams]);
+    }, [setSearchParams]);
 
     /*get current search params as object*/
     const getSearchParams = () => ({
@@ -72,7 +63,7 @@ const useSearch = (delay = 500) => {
 
     /*clear all search params*/
     const clearSearch = useCallback(() => {
-        setSearchParams(new URLSearchParams());
+        setSearchParams(() => new URLSearchParams());
         setSearchTerm('');
         setDebouncedTerm('');
     }, [setSearchParams]);
@@ -87,6 +78,8 @@ const useSearch = (delay = 500) => {
         debouncedTerm,
         isSearching,
         searchParams: getSearchParams(),
+        // expose the URL-derived current location separately to avoid effect syncing
+        urlLocation: currentLocation,
         updateSearchTerm,
         updateSearchParams,
         executeSearch,

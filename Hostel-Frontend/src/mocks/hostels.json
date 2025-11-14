@@ -1,6 +1,6 @@
-{
-    "rooms": [
     {
+    "rooms": [
+        {
         "id": 1,
         "title": "Cozy Studio near UoN Main Campus",
         "slug": "cozy-studio-uon-main",
@@ -436,4 +436,4 @@
         "Westlands"
         ]
     }
-}
+    }

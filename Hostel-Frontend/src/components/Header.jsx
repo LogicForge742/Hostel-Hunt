@@ -1,49 +1,102 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 bg-white dark:bg-gray-900 shadow-md z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Simple text logo */}
-          <Link to="/" className="text-2xl font-bold">
-            HostelHunt
+    <header className="sticky top-0 bg-white shadow-sm z-50 border-b border-gray-100">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            
+            <span className="text-2xl font-bold">
+              <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                Hostel Hunt
+              </span>
+            </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400">Home</Link>
-            <Link to="/search" className="hover:text-blue-600 dark:hover:text-blue-400">Explore</Link>
-            <Link to="/login" className="hover:text-blue-600 dark:hover:text-blue-400">Login</Link>
-            <Link to="/signup" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
-              Sign Up
+          <nav className="hidden md:flex items-center gap-8">
+            
+            <Link 
+              to="/login" 
+              className="text-gray-700 hover:text-purple-600 font-medium transition-colors"
+            >
+              Login
             </Link>
+            <button
+              onClick={() => navigate('/signup')}
+              className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transition-all duration-300 border-2 border-black"
+            >
+              Register
+            </button>
           </nav>
 
-          {/* Mobile Toggle */}
+          {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-2xl"
+            className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Toggle menu"
           >
-            {mobileOpen ? 'Close' : 'Menu'}
+            <div className="w-6 flex flex-col gap-1.5">
+              <motion.span
+                animate={mobileOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
+                className="w-full h-0.5 bg-gray-800 rounded-full transition-all"
+              />
+              <motion.span
+                animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
+                className="w-full h-0.5 bg-gray-800 rounded-full transition-all"
+              />
+              <motion.span
+                animate={mobileOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
+                className="w-full h-0.5 bg-gray-800 rounded-full transition-all"
+              />
+            </div>
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <motion.nav
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: mobileOpen ? 1 : 0, y: mobileOpen ? 0 : -10 }}
-          className={`md:hidden border-t py-4 space-y-2 ${mobileOpen ? 'block' : 'hidden'}`}
-        >
-          <Link to="/" className="block px-4 py-2">Home</Link>
-          <Link to="/search" className="block px-4 py-2">Explore</Link>
-          <Link to="/login" className="block px-4 py-2">Login</Link>
-          <Link to="/signup" className="block px-4 py-2 font-medium">Sign Up</Link>
-        </motion.nav>
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.nav
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden border-t border-gray-100 py-4 space-y-1 overflow-hidden"
+            >
+              <Link
+                to="/"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors font-medium"
+              >
+                Home
+              </Link>
+              
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors font-medium"
+              >
+                Login
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  navigate('/signup');
+                }}
+                className="w-full text-left px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg font-semibold mt-2"
+              >
+                Register
+              </button>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );
