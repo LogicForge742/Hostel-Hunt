@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+//import { motion } from 'framer-motion';
 import {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchBar } from '../../components/SearchBar.jsx';
