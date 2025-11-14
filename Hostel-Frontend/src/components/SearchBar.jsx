@@ -1,7 +1,7 @@
 //import { motion } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-
+import { motion } from 'framer-motion';
 export const SearchBar = ({ onSearch, initialValues = {} }) => {
     //hold user current text input
     const [searchQuery, setSearchQuery] = useState(initialValues.query || '');

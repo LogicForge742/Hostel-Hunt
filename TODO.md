@@ -1,0 +1,2 @@
+- [x] Create src/components/Button.jsx with variants (primary, secondary, ghost), sizes (small, medium, large), disabled state, hover/focus, dark mode support, accessibility focus ring
+- [x] Update src/pages/booking/BookingPage.jsx to import Button, replace inline <button> elements with <Button>, set disabled for "Next" in step 1 when dates missing, use appropriate variants
