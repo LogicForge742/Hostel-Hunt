@@ -1,7 +1,7 @@
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchBar } from '../../components/SearchBar.jsx';
-import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function HomePage() {
   const navigate = useNavigate();
