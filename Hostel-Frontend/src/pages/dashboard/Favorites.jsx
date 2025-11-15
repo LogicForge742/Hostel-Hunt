@@ -1,11 +1,42 @@
 import { Link } from 'react-router-dom';
 import { useBooking } from '../../context/BookingContext.jsx';
-import { mockHostels } from '../../mocks/bookingData.jsx';
+import { useState, useEffect } from 'react';
 
 export default function Favorites() {
-  const { favorites, toggleFavorite } = useBooking();
+  const { favorites, toggleFavorite, getHostelById } = useBooking();
+  const [favoriteHostels, setFavoriteHostels] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const favoriteHostels = mockHostels.filter(hostel => favorites.includes(hostel.id));
+  useEffect(() => {
+    const loadFavoriteHostels = async () => {
+      if (favorites.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const hostelPromises = favorites.map(id => getHostelById(id));
+        const hostels = await Promise.all(hostelPromises);
+        const validHostels = hostels.filter(hostel => hostel !== null);
+        setFavoriteHostels(validHostels);
+      } catch (error) {
+        console.error('Failed to load favorite hostels:', error);
+        setFavoriteHostels([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFavoriteHostels();
+  }, [favorites, getHostelById]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -26,7 +57,7 @@ export default function Favorites() {
           {favoriteHostels.map((hostel) => (
             <div key={hostel.id} className="bg-white border rounded-lg overflow-hidden shadow-sm">
               <img
-                src={hostel.image}
+                src={hostel.images && hostel.images.length > 0 ? hostel.images[0] : '/placeholder.jpg'}
                 alt={hostel.name}
                 className="w-full h-48 object-cover"
               />
@@ -42,10 +73,10 @@ export default function Favorites() {
                 </div>
                 <p className="text-gray-600 mb-2">{hostel.location}</p>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-2xl font-bold">${hostel.price}/night</span>
-                  <span className="text-yellow-500">★ {hostel.rating}</span>
+                  <span className="text-2xl font-bold">KES {hostel.price?.toLocaleString() || 'N/A'}/mo</span>
+                  <span className="text-yellow-500">★ {hostel.rating || 'N/A'}</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">{hostel.description}</p>
+                <p className="text-sm text-gray-600 mb-4">{hostel.description || 'No description available'}</p>
                 <div className="flex space-x-2">
                   <Link
                     to={`/hostel/${hostel.id}`}

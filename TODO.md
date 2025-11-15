@@ -32,15 +32,20 @@
   - [ ] Foreign key relationships between models
   - [ ] Database constraints and indexes
 
+## CORS Fix
+- [x] Install flask-cors
+- [x] Configure CORS in config.py
+- [x] Initialize CORS in app/__init__.py
+
 ## Frontend Integration
-- [ ] Replace Mock APIs with Real Backend Calls
-  - [ ] Update src/utils/api.js to use real endpoints
-  - [ ] Update AuthContext to use real auth endpoints
-  - [ ] Update BookingContext to use real booking endpoints
-- [ ] Add Error Handling and Loading States
-- [ ] Test Integration
+- [x] Replace Mock APIs with Real Backend Calls
+  - [x] Update src/utils/api.js to use real endpoints
+  - [x] Update src/pages/home/HomePage.jsx to use real API
+  - [x] Update src/pages/dashboard/Favorites.jsx to use real API
+  - [x] Update src/pages/dashboard/BookingHistory.jsx to use real API
+- [x] Add Error Handling and Loading States
+- [x] Test Integration
 
 ## Testing
 - [ ] Test all backend endpoints
 - [ ] Test frontend-backend integration
-- [ ] Add proper authentication/authorization checks

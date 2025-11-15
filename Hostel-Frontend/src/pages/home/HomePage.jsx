@@ -2,78 +2,29 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SearchBar from '../../components/SearchBar';
+import { fetchFeaturedRooms } from '../../utils/api.js';
 
 const HomePage = () => {
     const navigate = useNavigate();
     const [featuredRooms, setFeaturedRooms] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  // mock featured rooms - replace with actual API call
+  // Fetch featured rooms from API
     useEffect(() => {
-        const loadRooms = () => {
-        const mockRooms = [
-            {
-            id: 1,
-            title: 'Cozy Studio near UoN Main Campus',
-            location: 'Parklands, 5 min walk to campus',
-            university: 'University of Nairobi',
-            price: 12000,
-            image: '/assets/room1.jpg',
-            borderColor: 'border-purple-400',
-            featured: true
-            },
-            {
-            id: 2,
-            title: 'Modern Single Room - KU Campus',
-            location: 'Kahawa Wendani, 10 min from KU',
-            university: 'Kenyatta University',
-            price: 8500,
-            image: '/assets/room2.jpg',
-            borderColor: 'border-pink-400',
-            featured: true
-            },
-            {
-            id: 3,
-            title: 'Affordable Bedsitter JKUAT',
-            location: 'Juja, near JKUAT Gate',
-            university: 'JKUAT',
-            price: 7000,
-            image: '/assets/room3.jpg',
-            borderColor: 'border-yellow-400',
-            featured: false
-            },
-            {
-            id: 4,
-            title: 'Shared Room near Daystar',
-            location: 'Athi River, Walking distance',
-            university: 'Daystar University',
-            price: 5000,
-            image: '/assets/room4.jpg',
-            borderColor: 'border-blue-400',
-            featured: false
-            },
-            {
-            id: 5,
-            title: 'Spacious 1BR near Strathmore',
-            location: 'Madaraka, 15 min to campus',
-            university: 'Strathmore University',
-            price: 18000,
-            image: '/assets/room5.jpg',
-            borderColor: 'border-green-400',
-            featured: false
-            },
-            {
-            id: 6,
-            title: 'Budget Single Room USIU',
-            location: 'Kasarani, Near USIU',
-            university: 'USIU',
-            price: 6500,
-            image: '/assets/room6.jpg',
-            borderColor: 'border-orange-400',
-            featured: false
+        const loadRooms = async () => {
+            try {
+                setLoading(true);
+                const rooms = await fetchFeaturedRooms(6);
+                setFeaturedRooms(rooms);
+            } catch (err) {
+                console.error('Failed to load featured rooms:', err);
+                setError('Failed to load featured rooms');
+                // Fallback to empty array
+                setFeaturedRooms([]);
+            } finally {
+                setLoading(false);
             }
-        ];
-        //set mock data to state
-        setFeaturedRooms(mockRooms);
         };
 
         loadRooms();
@@ -158,69 +109,99 @@ const HomePage = () => {
 
             <p className="text-gray-600 mb-8">Fresh listings from trusted landlords</p>
 
+            {/* Loading state */}
+            {loading && (
+                <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                </div>
+            )}
+
+            {/* Error state */}
+            {error && (
+                <div className="text-center py-12">
+                    <p className="text-red-600 mb-4">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            )}
+
             {/* hostels grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredRooms.map((room, index) => (
-                <motion.div
-                    key={room.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                    whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                    onClick={() => navigate(`/hostel/${room.id}`)}
-                    className={`bg-white rounded-3xl overflow-hidden cursor-pointer border-4 ${room.borderColor} shadow-lg hover:shadow-2xl transition-all duration-300 relative group`}
-                >
-                    {/* bookmark icon */}
-                    <div className="absolute top-4 left-4 z-10">
-                    <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black shadow-md">
-                        <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-                        </svg>
-                    </div>
-                    </div>
+            {!loading && !error && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {featuredRooms.map((room, index) => (
+                    <motion.div
+                        key={room.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                        whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                        onClick={() => navigate(`/hostel/${room.id}`)}
+                        className={`bg-white rounded-3xl overflow-hidden cursor-pointer border-4 ${room.borderColor || 'border-purple-400'} shadow-lg hover:shadow-2xl transition-all duration-300 relative group`}
+                    >
+                        {/* bookmark icon */}
+                        <div className="absolute top-4 left-4 z-10">
+                        <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black shadow-md">
+                            <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+                            </svg>
+                        </div>
+                        </div>
 
-                    {/* price badge */}
-                    <div className="absolute top-4 right-4 z-10">
-                    <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-full font-bold shadow-lg border-2 border-white">
-                        KES {room.price.toLocaleString()}/mo
-                    </div>
-                    </div>
+                        {/* price badge */}
+                        <div className="absolute top-4 right-4 z-10">
+                        <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-full font-bold shadow-lg border-2 border-white">
+                            KES {room.price?.toLocaleString() || 'N/A'}/mo
+                        </div>
+                        </div>
 
-                    {/* room image */}
-                    <div className="relative h-64 bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                        <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                        </svg>
-                    </div>
+                        {/* room image */}
+                        <div className="relative h-64 bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden">
+                        {room.images && room.images.length > 0 ? (
+                            <img
+                                src={room.images[0]}
+                                alt={room.name || room.title}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                            <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                            </svg>
+                            </div>
+                        )}
 
-                    {/* hover overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
-                    </div>
+                        {/* hover overlay */}
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+                        </div>
 
-                    {/* room details */}
-                    <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-1 group-hover:text-purple-600 transition-colors">
-                        {room.title}
-                    </h3>
+                        {/* room details */}
+                        <div className="p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-1 group-hover:text-purple-600 transition-colors">
+                            {room.name || room.title}
+                        </h3>
 
-                    <div className="flex items-start gap-2 mb-4 text-gray-600">
-                        <svg className="w-5 h-5 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm">{room.location}</span>
-                    </div>
+                        <div className="flex items-start gap-2 mb-4 text-gray-600">
+                            <svg className="w-5 h-5 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-sm">{room.location}</span>
+                        </div>
 
-                    <div className="inline-block">
-                        <span className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold border border-yellow-300">
-                        {room.university}
-                        </span>
-                    </div>
-                    </div>
-                </motion.div>
-                ))}
-            </div>
+                        <div className="inline-block">
+                            <span className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold border border-yellow-300">
+                            {room.university || 'University'}
+                            </span>
+                        </div>
+                        </div>
+                    </motion.div>
+                    ))}
+                </div>
+            )}
             </motion.div>
         </section>
 
@@ -245,19 +226,19 @@ const HomePage = () => {
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {[
                 {
-                    
+                    icon: '💬',
                     title: 'Direct Connect',
                     description: 'No middlemen or broker fees. Chat directly with verified landlords',
                     color: 'from-purple-400 to-purple-600'
                 },
                 {
-                    
+                    icon: '💰',
                     title: 'Affordable Options',
                     description: 'Find rooms under 20K near your university with transparent pricing',
                     color: 'from-pink-400 to-pink-600'
                 },
                 {
-                    
+                    icon: '✅',
                     title: 'Verified Listings',
                     description: 'All landlords verified. Read reviews from fellow students',
                     color: 'from-orange-400 to-orange-600'
@@ -282,7 +263,7 @@ const HomePage = () => {
             </div>
             </div>
         </section>
-        
+
 
         {/* Floating Post Room Button */}
         <motion.button
