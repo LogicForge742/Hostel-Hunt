@@ -36,6 +36,10 @@ try:
     from .routes.search import search_bp
 except Exception:
     search_bp = None
+try:
+    from .routes.analytics import analytics_bp
+except Exception:
+    analytics_bp = None
 
 
 def create_app():
@@ -73,6 +77,8 @@ def create_app():
         app.register_blueprint(reviews_bp, url_prefix="/reviews")
     if search_bp is not None:
         app.register_blueprint(search_bp, url_prefix="/search")
+    if analytics_bp is not None:
+        app.register_blueprint(analytics_bp, url_prefix="/analytics")
 
     # Register admin blueprint
     app.register_blueprint(admin_bp, url_prefix="/admin")

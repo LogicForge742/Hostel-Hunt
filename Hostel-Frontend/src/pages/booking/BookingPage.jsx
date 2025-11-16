@@ -14,7 +14,8 @@ export default function BookingPage() {
   const [bookingData, setBookingData] = useState({
     checkIn: null,
     checkOut: null,
-    guests: 1
+    guests: 1,
+    phoneNumber: ''
   });
 
   const hostel = getHostelById(hostelId);
@@ -31,38 +32,66 @@ export default function BookingPage() {
     setBookingData(prev => ({ ...prev, guests: parseInt(guests) }));
   };
 
-  const calculateNights = () => {
+  const calculateMonths = () => {
     if (!bookingData.checkIn || !bookingData.checkOut) return 0;
     const diffTime = Math.abs(bookingData.checkOut - bookingData.checkIn);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(1, Math.round(days / 30)); // At least 1 month, round to nearest month
   };
 
   const calculateTotal = () => {
-    return calculateNights() * hostel.price * bookingData.guests;
+    const months = calculateMonths();
+    const pricePerMonth = hostel.price;
+    return months * pricePerMonth * bookingData.guests;
   };
 
   const handleNext = () => {
-    if (step === 1 && (!bookingData.checkIn || !bookingData.checkOut)) {
-      alert('Please select check-in and check-out dates');
-      return;
+    if (step === 1) {
+      if (!bookingData.checkIn || !bookingData.checkOut) {
+        alert('Please select check-in and check-out dates');
+        return;
+      }
+      // Validate that check-out is after check-in
+      if (bookingData.checkIn >= bookingData.checkOut) {
+        alert('Check-out date must be after check-in date');
+        return;
+      }
+      // Validate that check-in is not in the past
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (bookingData.checkIn < today) {
+        alert('Check-in date cannot be in the past');
+        return;
+      }
     }
-    if (step === 2 && bookingData.guests < 1) {
-      alert('Please select at least 1 guest');
+    if (step === 2 && (bookingData.guests < 1 || !bookingData.phoneNumber)) {
+      alert('Please select at least 1 guest and provide a phone number');
       return;
     }
     setStep(step + 1);
   };
 
-  const handleConfirm = () => {
-    const bookingId = createBooking({
-      hostelId: parseInt(hostelId),
-      userId: 1, // Mock user ID
-      checkIn: bookingData.checkIn.toISOString().split('T')[0],
-      checkOut: bookingData.checkOut.toISOString().split('T')[0],
-      guests: bookingData.guests,
-      totalPrice: calculateTotal()
-    });
-    navigate(`/booking/confirmation/${bookingId}`);
+  const handleConfirm = async () => {
+    try {
+      // Format dates as YYYY-MM-DD without timezone conversion
+      const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const bookingId = await createBooking({
+        hostel_id: parseInt(hostelId),
+        check_in: formatDate(bookingData.checkIn),
+        check_out: formatDate(bookingData.checkOut),
+        guests: bookingData.guests,
+        phone_number: bookingData.phoneNumber
+      });
+      navigate(`/booking/confirmation/${bookingId}`);
+    } catch (error) {
+      alert('Failed to create booking: ' + error.message);
+    }
   };
 
   return (
@@ -118,18 +147,31 @@ export default function BookingPage() {
 
           {step === 2 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold">Number of Guests</h2>
-              <div>
-                <label className="block text-sm font-medium mb-2">Guests</label>
-                <select
-                  value={bookingData.guests}
-                  onChange={(e) => handleGuestsChange(e.target.value)}
-                  className="w-full p-3 border rounded-lg"
-                >
-                  {[1, 2, 3, 4, 5, 6].map(num => (
-                    <option key={num} value={num}>{num} Guest{num > 1 ? 's' : ''}</option>
-                  ))}
-                </select>
+              <h2 className="text-2xl font-semibold">Booking Details</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Number of Guests</label>
+                  <select
+                    value={bookingData.guests}
+                    onChange={(e) => handleGuestsChange(e.target.value)}
+                    className="w-full p-3 border rounded-lg"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map(num => (
+                      <option key={num} value={num}>{num} Guest{num > 1 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={bookingData.phoneNumber}
+                    onChange={(e) => setBookingData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                    placeholder="Enter your phone number"
+                    className="w-full p-3 border rounded-lg"
+                    required
+                  />
+                </div>
               </div>
               <div className="flex space-x-4">
                 <Button
@@ -140,6 +182,7 @@ export default function BookingPage() {
                 </Button>
                 <Button
                   onClick={handleNext}
+                  disabled={!bookingData.phoneNumber}
                   variant="primary"
                 >
                   Next
@@ -156,10 +199,11 @@ export default function BookingPage() {
                 <div className="space-y-2">
                   <p><strong>Check-in:</strong> {bookingData.checkIn?.toLocaleDateString()}</p>
                   <p><strong>Check-out:</strong> {bookingData.checkOut?.toLocaleDateString()}</p>
-                  <p><strong>Nights:</strong> {calculateNights()}</p>
+                  <p><strong>Months:</strong> {calculateMonths()}</p>
                   <p><strong>Guests:</strong> {bookingData.guests}</p>
-                  <p><strong>Price per night:</strong> ${hostel.price}</p>
-                  <p className="text-xl font-bold"><strong>Total:</strong> ${calculateTotal()}</p>
+                  <p><strong>Phone Number:</strong> {bookingData.phoneNumber}</p>
+                  <p><strong>Price per month:</strong> KSh {hostel.price}</p>
+                  <p className="text-xl font-bold"><strong>Total:</strong> KSh {calculateTotal()}</p>
                 </div>
               </div>
               <div className="flex space-x-4">

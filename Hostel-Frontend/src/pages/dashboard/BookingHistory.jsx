@@ -54,11 +54,11 @@ export default function BookingHistory() {
                 <div className="grid md:grid-cols-4 gap-4 mb-4">
                   <div>
                     <p className="text-sm text-gray-500">Check-in</p>
-                    <p className="font-medium">{new Date(booking.checkIn).toLocaleDateString()}</p>
+                    <p className="font-medium">{booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'Invalid date'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Check-out</p>
-                    <p className="font-medium">{new Date(booking.checkOut).toLocaleDateString()}</p>
+                    <p className="font-medium">{booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'Invalid date'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Guests</p>
@@ -66,7 +66,7 @@ export default function BookingHistory() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Total</p>
-                    <p className="font-medium">${booking.totalPrice}</p>
+                    <p className="font-medium">KSh {booking.total_price || booking.totalPrice || 'N/A'}</p>
                   </div>
                 </div>
 

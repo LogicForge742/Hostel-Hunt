@@ -81,8 +81,33 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const refreshToken = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.access_token);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );

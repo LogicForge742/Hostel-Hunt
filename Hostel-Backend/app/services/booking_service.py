@@ -19,15 +19,16 @@ class BookingService:
             raise ValueError("Check-in date cannot be in the past")
 
         # Check availability
-        if not BookingService.check_availability(hostel_id, check_in_date, check_out_date):
+        if not BookingService.check_availability(hostel_id, check_in_date, check_out_date, guests):
             raise ValueError("Hostel is not available for the selected dates")
 
         # Get hostel for pricing
         hostel = Hostel.query.get_or_404(hostel_id)
 
-        # Calculate total price
-        nights = (check_out_date - check_in_date).days
-        total_price = hostel.price * nights * guests
+        # Calculate total price (per month per person)
+        days = (check_out_date - check_in_date).days
+        months = max(1, round(days / 30))  # At least 1 month, round to nearest month
+        total_price = hostel.price * months * guests
 
         try:
             booking = Booking(
@@ -48,9 +49,13 @@ class BookingService:
             raise e
 
     @staticmethod
-    def check_availability(hostel_id, check_in, check_out):
-        """Check if a hostel is available for the given dates"""
-        # Check for overlapping bookings
+    def check_availability(hostel_id, check_in, check_out, guests=1):
+        """Check if a hostel is available for the given dates and number of guests"""
+        # Get hostel capacity
+        hostel = Hostel.query.get_or_404(hostel_id)
+        max_capacity = hostel.capacity
+
+        # Check for overlapping bookings and sum their guests
         overlapping_bookings = Booking.query.filter(
             and_(
                 Booking.hostel_id == hostel_id,
@@ -61,9 +66,13 @@ class BookingService:
                     and_(Booking.check_in >= check_in, Booking.check_out <= check_out)
                 )
             )
-        ).count()
+        ).all()
 
-        return overlapping_bookings == 0
+        # Sum guests from overlapping bookings
+        total_guests_booked = sum(booking.guests for booking in overlapping_bookings)
+
+        # Check if adding new guests would exceed capacity
+        return (total_guests_booked + guests) <= max_capacity
 
     @staticmethod
     def get_user_bookings(user_id, page=1, per_page=20, status=None):
@@ -162,6 +171,47 @@ class BookingService:
         except Exception as e:
             db.session.rollback()
             raise e
+
+    @staticmethod
+    def get_landlord_bookings(landlord_id, page=1, per_page=20, status=None):
+        """Get all bookings for all hostels owned by a landlord"""
+        # Get all hostel IDs owned by the landlord
+        hostels = Hostel.query.filter_by(landlord_id=landlord_id).all()
+        hostel_ids = [h.id for h in hostels]
+
+        if not hostel_ids:
+            return {
+                'bookings': [],
+                'total': 0,
+                'pages': 0,
+                'current_page': page
+            }
+
+        query = Booking.query.filter(Booking.hostel_id.in_(hostel_ids))
+
+        if status:
+            query = query.filter_by(status=status)
+
+        query = query.order_by(Booking.created_at.desc())
+
+        bookings = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # Enhance booking data with hostel and user info
+        enhanced_bookings = []
+        for booking in bookings.items:
+            booking_dict = booking.to_dict()
+            # Add hostel name and user info
+            booking_dict['hostel_name'] = booking.hostel.name if booking.hostel else 'Unknown'
+            booking_dict['customer_name'] = booking.user.name if booking.user else 'Unknown'
+            booking_dict['customer_email'] = booking.user.email if booking.user else 'Unknown'
+            enhanced_bookings.append(booking_dict)
+
+        return {
+            'bookings': enhanced_bookings,
+            'total': bookings.total,
+            'pages': bookings.pages,
+            'current_page': bookings.page
+        }
 
     @staticmethod
     def get_booking_stats(hostel_id=None, landlord_id=None):

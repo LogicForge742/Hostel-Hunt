@@ -36,7 +36,7 @@ coverage.xml
 htmlcov/
 
 # Flask instance folder (contains secrets, local config)
-instance/
+# instance/
 
 # Local env files
 .env

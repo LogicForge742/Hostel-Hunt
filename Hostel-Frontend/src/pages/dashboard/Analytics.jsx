@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../utils/api';
 
 export default function Analytics() {
-  const { user } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -14,34 +13,17 @@ export default function Analytics() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call when backend endpoint is ready
-      // const response = await fetch('/api/landlord/analytics', {
-      //   headers: { Authorization: `Bearer ${token}` }
-      // });
-      // const data = await response.json();
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/analytics/landlord`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-      // Mock data for now
-      const mockData = {
-        totalRevenue: 125000,
-        monthlyRevenue: 15000,
-        totalBookings: 45,
-        activeBookings: 12,
-        occupancyRate: 78,
-        averageRating: 4.2,
-        topHostel: {
-          name: "Sunset Apartments",
-          revenue: 35000,
-          bookings: 15
-        },
-        monthlyTrend: [
-          { month: 'Jan', revenue: 12000, bookings: 8 },
-          { month: 'Feb', revenue: 15000, bookings: 12 },
-          { month: 'Mar', revenue: 18000, bookings: 15 },
-          { month: 'Apr', revenue: 22000, bookings: 10 }
-        ]
-      };
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics');
+      }
 
-      setAnalytics(mockData);
+      const data = await response.json();
+      setAnalytics(data);
     } catch (err) {
       setError('Failed to load analytics data');
       console.error('Analytics fetch error:', err);
@@ -174,13 +156,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Note about mock data */}
-      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p className="text-yellow-800 text-sm">
-          <strong>Note:</strong> This analytics dashboard is currently displaying mock data.
-          Backend API endpoints for real analytics data need to be implemented.
-        </p>
-      </div>
+
     </div>
   );
 }

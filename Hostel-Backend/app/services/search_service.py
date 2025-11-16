@@ -66,9 +66,12 @@ class SearchService:
         # Amenities
         if query_params.get('amenities'):
             amenities = query_params['amenities'] if isinstance(query_params['amenities'], list) else [query_params['amenities']]
-            for amenity_id in amenities:
+            # Filter hostels that have the selected amenities
+            # amenities is expected to be a list of amenity keys like ['wifi', 'water', etc.]
+            for amenity_key in amenities:
+                # Check if the amenity exists in the hostel's amenities JSON
                 query = query.filter(
-                    Hostel.amenities.cast(db.Text).contains(str(amenity_id))
+                    Hostel.amenities[amenity_key].as_boolean() == True
                 )
 
         # Features

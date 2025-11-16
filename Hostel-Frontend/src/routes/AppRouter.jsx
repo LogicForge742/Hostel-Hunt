@@ -14,7 +14,11 @@ import ConfirmationPage from '../pages/booking/ConfirmationPage.jsx';
 import DashboardLayout from '../pages/dashboard/DashboardLayout.jsx';
 import BookingHistory from '../pages/dashboard/BookingHistory.jsx';
 import Favorites from '../pages/dashboard/Favorites.jsx';
+import MyHostels from '../pages/dashboard/MyHostels.jsx';
 import HostelBookings from "../pages/dashboard/HostelBookings";
+import Analytics from '../pages/dashboard/Analytics.jsx';
+import CreateHostel from '../pages/dashboard/CreateHostel.jsx';
+import EditHostel from '../pages/dashboard/EditHostel.jsx';
 
 
 export default function AppRouter() {
@@ -38,6 +42,11 @@ export default function AppRouter() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<BookingHistory />} />
             <Route path="favorites" element={<Favorites />} />
+            <Route path="my-hostels" element={<MyHostels />} />
+            <Route path="hostels/create" element={<CreateHostel />} />
+            <Route path="hostels/edit/:id" element={<EditHostel />} />
+            <Route path="hostel-bookings" element={<HostelBookings />} />
+            <Route path="analytics" element={<Analytics />} />
           </Route>
         </Route>
       </Route>

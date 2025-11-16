@@ -141,6 +141,29 @@ def update_booking_status(booking_id):
     except Exception as e:
         return jsonify({"message": "Failed to update booking status", "error": str(e)}), 500
 
+@bookings_bp.get("/landlord/bookings")
+@jwt_required()
+@landlord_required
+def get_landlord_bookings():
+    """Get all bookings for all hostels owned by the landlord"""
+    user_id = get_jwt_identity()
+
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 20))
+        status = request.args.get('status')
+
+        result = BookingService.get_landlord_bookings(
+            landlord_id=user_id,
+            page=page,
+            per_page=per_page,
+            status=status
+        )
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"message": "Failed to fetch landlord bookings", "error": str(e)}), 500
+
 @bookings_bp.get("/stats/<int:hostel_id>")
 @jwt_required()
 @landlord_required

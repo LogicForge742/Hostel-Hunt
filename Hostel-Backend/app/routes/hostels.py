@@ -4,7 +4,7 @@ from ..services.hostel_service import HostelService
 from ..middleware.auth_middleware import landlord_required
 from ..utils.validator import is_valid_email
 
-hostels_bp = Blueprint("hostels", __name__, url_prefix="/hostels")
+hostels_bp = Blueprint("hostels", __name__, url_prefix="/hostels/")
 
 @hostels_bp.get("/")
 def get_hostels():

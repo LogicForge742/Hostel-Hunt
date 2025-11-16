@@ -38,9 +38,12 @@ class HostelService:
 
             # Amenities filter
             if filters.get('amenities'):
-                for amenity_id in filters['amenities']:
+                # Filter hostels that have the selected amenities
+                # amenities is expected to be a list of amenity keys like ['wifi', 'water', etc.]
+                for amenity_key in filters['amenities']:
+                    # Check if the amenity exists in the hostel's amenities JSON
                     query = query.filter(
-                        Hostel.amenities.cast(db.Text).contains(str(amenity_id))
+                        Hostel.amenities[amenity_key].as_boolean() == True
                     )
 
             # Features filter
@@ -89,9 +92,72 @@ class HostelService:
         # Get review count
         review_count = Review.query.filter_by(hostel_id=hostel_id).count()
 
-        hostel_data = hostel.to_dict()
-        hostel_data['average_rating'] = float(avg_rating)
-        hostel_data['review_count'] = review_count
+        # Transform data to match frontend expectations
+        features = hostel.features or {}
+        availability = hostel.availability or {}
+
+        # Parse location string into components (assuming format: "Area, City")
+        location_parts = hostel.location.split(',') if hostel.location else ['', '']
+        area = location_parts[0].strip() if len(location_parts) > 0 else ''
+        city = location_parts[1].strip() if len(location_parts) > 1 else ''
+
+        # Transform amenities from dict to array of strings
+        amenities_list = []
+        if hostel.amenities:
+            for amenity, available in hostel.amenities.items():
+                if available:
+                    # Convert snake_case to Title Case
+                    amenity_name = amenity.replace('_', ' ').title()
+                    amenities_list.append(amenity_name)
+
+        # Transform landlord data
+        landlord_data = None
+        if hostel.landlord:
+            landlord_data = {
+                'name': hostel.landlord.business_name or hostel.landlord.user.name if hostel.landlord.user else 'Unknown Landlord',
+                'verified': hostel.landlord.is_verified,
+                'rating': float(avg_rating),
+                'reviewCount': review_count
+            }
+
+        # Transform availability data
+        availability_data = {
+            'available': availability.get('available', True),
+            'availableFrom': availability.get('available_from', '2024-01-01'),
+            'minimumStay': availability.get('minimum_stay', '1 month'),
+            'deposit': availability.get('deposit', 0)
+        }
+
+        # What's included in rent (price_includes)
+        price_includes = availability.get('price_includes', ['Water', 'Electricity'])
+
+        hostel_data = {
+            'id': hostel.id,
+            'title': hostel.name,
+            'description': hostel.description or '',
+            'location': {
+                'area': area,
+                'city': city,
+                'distance': '2.5 km from campus',  # Default distance
+                'description': f'Located in {area}, {city}'
+            },
+            'price': hostel.price,
+            'currency': hostel.currency,
+            'roomType': hostel.room_type.title(),
+            'images': hostel.images or [],
+            'amenities': amenities_list,
+            'features': {
+                'bedrooms': features.get('bedrooms', 1),
+                'bathrooms': features.get('bathrooms', 1),
+                'furnished': features.get('furnished', False)
+            },
+            'availability': availability_data,
+            'priceIncludes': price_includes,
+            'featured': hostel.is_featured,
+            'verified': hostel.is_verified,
+            'landlord': landlord_data,
+            'similarRooms': []  # Will be populated by frontend or separate endpoint
+        }
 
         return hostel_data
 

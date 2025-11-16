@@ -352,41 +352,43 @@ export default function HostelDetailPage() {
               </div>
 
               {/* Landlord Info */}
-              <div className="mt-6 pt-6 border-t">
-                <h3 className="font-bold text-gray-800 mb-3">Landlord</h3>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                    {room.landlord.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{room.landlord.name}</p>
-                    {room.landlord.verified && (
-                      <p className="text-xs text-green-600 flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        Verified Landlord
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {room.landlord.rating && (
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex items-center gap-1">
-                      <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                      </svg>
-                      <span className="font-semibold">{room.landlord.rating.toFixed(1)}</span>
+              {room.landlord && (
+                <div className="mt-6 pt-6 border-t">
+                  <h3 className="font-bold text-gray-800 mb-3">Landlord</h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                      {room.landlord.name.charAt(0)}
                     </div>
-                    <span className="text-sm text-gray-600">({room.landlord.reviewCount} reviews)</span>
+                    <div>
+                      <p className="font-semibold text-gray-800">{room.landlord.name}</p>
+                      {room.landlord.verified && (
+                        <p className="text-xs text-green-600 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Verified Landlord
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
 
-                <button className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-                  Contact Landlord
-                </button>
-              </div>
+                  {room.landlord.rating && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center gap-1">
+                        <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                        </svg>
+                        <span className="font-semibold">{room.landlord.rating.toFixed(1)}</span>
+                      </div>
+                      <span className="text-sm text-gray-600">({room.landlord.reviewCount} reviews)</span>
+                    </div>
+                  )}
+
+                  <button className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                    Contact Landlord
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

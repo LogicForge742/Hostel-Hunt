@@ -13,18 +13,21 @@ def register():
     password = data.get("password")
     name = data.get("name")
     phone_number = data.get("phone_number")
+    role = data.get("role", "student")  # Default to student if not provided
 
     # Validation
     if not email or not is_valid_email(email):
         return jsonify({"message": "Invalid email address"}), 400
     if not password or not is_valid_password(password):
-        return jsonify({"message": "Password must be at least 6 characters"}), 400
+        return jsonify({"message": "Password must be at least 8 characters with uppercase, lowercase, number, and special character"}), 400
     if not name:
         return jsonify({"message": "Name is required"}), 400
     if not phone_number or not is_valid_phone(phone_number):
         return jsonify({"message": "Invalid phone number"}), 400
+    if role not in ["student", "landlord"]:
+        return jsonify({"message": "Invalid role"}), 400
 
-    response, error = AuthService.register(email, password, name=name, phone_number=phone_number)
+    response, error = AuthService.register(email, password, name=name, phone_number=phone_number, role=role)
     if error:
         return jsonify({"message": error}), 400
 

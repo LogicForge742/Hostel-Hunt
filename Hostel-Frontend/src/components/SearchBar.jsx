@@ -8,6 +8,14 @@ const SearchBar = ({ onSearch, initialValues = {} }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     // ref used to detect clicks outside the search area (to close the dropdown)
     const searchRef = useRef(null);
+    // amenities filter state
+    const [selectedAmenities, setSelectedAmenities] = useState({
+        wifi: false,
+        water: false,
+        electricity: false,
+        furnished: false,
+        transport_to_campus: false
+    });
 
     //static list of universities for quick filter
     const universities = [
@@ -57,7 +65,7 @@ const SearchBar = ({ onSearch, initialValues = {} }) => {
             return;
         }
 
-        onSearch({ query: searchQuery });
+        onSearch({ query: searchQuery, amenities: selectedAmenities });
         setShowSuggestions(false);
     };
 
@@ -162,6 +170,38 @@ const SearchBar = ({ onSearch, initialValues = {} }) => {
                                 {uni.short}
                             </motion.button>
                         ))}
+                    </div>
+
+                    {/* Amenities Filter */}
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Amenities:</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {Object.entries(selectedAmenities).map(([key, value]) => {
+                                const amenityLabels = {
+                                    wifi: "WiFi Available",
+                                    water: "Water Available",
+                                    electricity: "Electricity Available",
+                                    furnished: "Furnished",
+                                    transport_to_campus: "Transport to Campus"
+                                };
+                                return (
+                                    <label key={key} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={value}
+                                            onChange={(e) => setSelectedAmenities(prev => ({
+                                                ...prev,
+                                                [key]: e.target.checked
+                                            }))}
+                                            className="mr-2"
+                                        />
+                                        <span className="text-sm">
+                                            {amenityLabels[key] || key.replace('_', ' ')}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     {/* submit button */}

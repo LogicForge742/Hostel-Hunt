@@ -5,10 +5,10 @@ from app.utils.jwt_utils import generate_tokens
 
 class AuthService:
     @staticmethod
-    def register(email, password, name=None, phone_number=None):
+    def register(email, password, name=None, phone_number=None, role="student"):
         """Register a new user.
 
-        Accepts optional name and phone_number and stores them on the User.
+        Accepts optional name, phone_number, and role and stores them on the User.
         Returns (response_dict, None) on success, or (None, error_message) on failure.
         """
         if not email or not password:
@@ -18,7 +18,7 @@ class AuthService:
         if existing:
             return None, "Email already exists"
 
-        user = User(email=email, name=name, phone_number=phone_number)
+        user = User(email=email, name=name, phone_number=phone_number, role=role)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -27,7 +27,8 @@ class AuthService:
 
         return {
             "user": user.to_dict(),
-            "tokens": tokens
+            "access_token": tokens["access_token"],
+            "refresh_token": tokens["refresh_token"]
         }, None
 
     @staticmethod
@@ -41,5 +42,6 @@ class AuthService:
 
         return {
             "user": user.to_dict(),
-            "tokens": tokens
+            "access_token": tokens["access_token"],
+            "refresh_token": tokens["refresh_token"]
         }, None

@@ -1,13 +1,16 @@
 import { createContext, useState, useEffect, useContext } from 'react';
+import { useAuth } from './AuthContext.jsx';
 
 const API_BASE_URL = 'http://localhost:5000';
 
 export const BookingContext = createContext();
 
 export function BookingProvider({ children }) {
+  const { refreshToken } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadUserBookings();
@@ -16,6 +19,7 @@ export function BookingProvider({ children }) {
 
   const loadUserBookings = async () => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       if (!token) return;
 
@@ -29,8 +33,13 @@ export function BookingProvider({ children }) {
       if (response.ok) {
         const data = await response.json();
         setBookings(data.bookings || []);
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to load bookings' }));
+        setError(errorData.message || 'Failed to load bookings');
+        console.error('Failed to load bookings:', errorData);
       }
     } catch (error) {
+      setError('Network error: Failed to load bookings');
       console.error('Failed to load bookings:', error);
     }
   };
@@ -45,18 +54,35 @@ export function BookingProvider({ children }) {
   const createBooking = async (bookingData) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      let token = localStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
 
-      const response = await fetch(`${API_BASE_URL}/bookings/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookingData),
-      });
+      const makeRequest = async (authToken) => {
+        const response = await fetch(`${API_BASE_URL}/bookings/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingData),
+        });
 
+        if (response.status === 401) {
+          // Token expired, try to refresh
+          const refreshed = await refreshToken();
+          if (refreshed) {
+            const newToken = localStorage.getItem('token');
+            // Retry with new token
+            return makeRequest(newToken);
+          } else {
+            throw new Error('Session expired. Please login again.');
+          }
+        }
+
+        return response;
+      };
+
+      const response = await makeRequest(token);
       const data = await response.json();
 
       if (!response.ok) {
@@ -137,6 +163,7 @@ export function BookingProvider({ children }) {
     bookings,
     favorites,
     loading,
+    error,
     createBooking,
     toggleFavorite,
     getHostelById,

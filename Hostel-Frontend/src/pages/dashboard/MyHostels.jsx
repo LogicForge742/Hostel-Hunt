@@ -34,7 +34,7 @@ const MyHostels = () => {
       await axios.delete(`${API_BASE_URL}/hostels/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setHostels(hostels.filter(hostel => hostel._id !== id)); // Adjusted for backend _id
+      setHostels(hostels.filter(hostel => hostel.id !== id)); // Adjusted for backend id
     } catch (err) {
       console.error("Failed to delete hostel:", err);
       setError("Failed to delete hostel");
@@ -57,25 +57,25 @@ const MyHostels = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {hostels.map(hostel => (
-            <div key={hostel._id} className="border p-4 rounded shadow"> {/* Adjusted key */}
+            <div key={hostel.id} className="border p-4 rounded shadow"> {/* Adjusted key */}
               <h2 className="text-lg font-semibold">{hostel.name}</h2>
               <p>{hostel.location}</p>
               <div className="mt-2 flex gap-2">
                 <button
                   className="px-2 py-1 bg-yellow-400 rounded"
-                  onClick={() => navigate(`/dashboard/hostels/edit/${hostel._id}`)} // Corrected path
+                  onClick={() => navigate(`/dashboard/hostels/edit/${hostel.id}`)} // Corrected path
                 >
                   Edit
                 </button>
                 <button
                   className="px-2 py-1 bg-red-500 text-white rounded"
-                  onClick={() => handleDelete(hostel._id)} // Adjusted for _id
+                  onClick={() => handleDelete(hostel.id)} // Adjusted for id
                 >
                   Delete
                 </button>
                 <button
                   className="px-2 py-1 bg-gray-200 rounded"
-                  onClick={() => navigate(`/hostels/${hostel._id}`)} // View stays the same
+                  onClick={() => navigate(`/hostel/${hostel.id}`)} // View stays the same
                 >
                   View
                 </button>
