@@ -1,0 +1,3 @@
+- [x] Fix booking availability check to account for hostel capacity instead of preventing all overlapping bookings
+- [x] Update check_availability method in booking_service.py to sum guests of overlapping bookings
+- [x] Test the booking creation after fix - Backend and Frontend are running, ready for testing

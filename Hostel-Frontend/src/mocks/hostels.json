@@ -1,0 +1,439 @@
+    {
+    "rooms": [
+        {
+        "id": 1,
+        "title": "Cozy Studio near UoN Main Campus",
+        "slug": "cozy-studio-uon-main",
+        "location": {
+            "area": "Parklands",
+            "city": "Nairobi",
+            "description": "5 min walk to campus",
+            "distance": "0.5 km from University of Nairobi",
+            "coordinates": {
+            "lat": -1.2795,
+            "lng": 36.8155
+            }
+        },
+        "university": "University of Nairobi",
+        "universityShort": "UoN",
+        "description": "Spacious studio apartment perfect for students. Includes WiFi, water, and electricity. Safe neighborhood with 24/7 security.",
+        "landlord": {
+            "name": "Jane Wanjiru",
+            "phone": "+254712345678",
+            "verified": true,
+            "rating": 4.8,
+            "reviewCount": 23
+        },
+        "price": 12000,
+        "currency": "KES",
+        "priceIncludes": ["Water", "WiFi", "Electricity (up to 500 units)"],
+        "images": [
+            "/assets/rooms/room1-1.jpg",
+            "/assets/rooms/room1-2.jpg",
+            "/assets/rooms/room1-3.jpg"
+        ],
+        "roomType": "Studio",
+        "amenities": [
+            "WiFi",
+            "Water Included",
+            "Electricity",
+            "24/7 Security",
+            "Parking",
+            "Laundry Area",
+            "Kitchen",
+            "Study Desk"
+        ],
+        "features": {
+            "furnished": true,
+            "bedrooms": 0,
+            "bathrooms": 1,
+            "kitchen": "Shared",
+            "parking": true,
+            "pets": false
+        },
+        "availability": {
+            "available": true,
+            "availableFrom": "2025-12-01",
+            "minimumStay": "3 months",
+            "deposit": 12000
+        },
+        "featured": true,
+        "verified": true,
+        "borderColor": "border-purple-400"
+        },
+        {
+        "id": 2,
+        "title": "Modern Single Room - KU Campus",
+        "slug": "modern-single-room-ku",
+        "location": {
+            "area": "Kahawa Wendani",
+            "city": "Nairobi",
+            "description": "10 min from KU",
+            "distance": "1.2 km from Kenyatta University",
+            "coordinates": {
+            "lat": -1.1828,
+            "lng": 36.9298
+            }
+        },
+        "university": "Kenyatta University",
+        "universityShort": "KU",
+        "description": "Modern single room in a gated compound. Perfect for serious students. Quiet environment with study-friendly atmosphere.",
+        "landlord": {
+            "name": "Peter Kamau",
+            "phone": "+254723456789",
+            "verified": true,
+            "rating": 4.6,
+            "reviewCount": 18
+        },
+        "price": 8500,
+        "currency": "KES",
+        "priceIncludes": ["Water", "Garbage Collection"],
+        "images": [
+            "/assets/rooms/room2-1.jpg",
+            "/assets/rooms/room2-2.jpg"
+        ],
+        "roomType": "Single Room",
+        "amenities": [
+            "Gated Compound",
+            "Water Included",
+            "Matatu Stage Nearby",
+            "24/7 Security",
+            "Shared Kitchen",
+            "Balcony"
+        ],
+        "features": {
+            "furnished": false,
+            "bedrooms": 1,
+            "bathrooms": 1,
+            "kitchen": "Shared",
+            "parking": false,
+            "pets": false
+        },
+        "availability": {
+            "available": true,
+            "availableFrom": "2025-11-20",
+            "minimumStay": "6 months",
+            "deposit": 8500
+        },
+        "featured": true,
+        "verified": true,
+        "borderColor": "border-pink-400"
+        },
+        {
+        "id": 3,
+        "title": "Affordable Bedsitter JKUAT",
+        "slug": "affordable-bedsitter-jkuat",
+        "location": {
+            "area": "Juja",
+            "city": "Kiambu",
+            "description": "Near JKUAT Gate",
+            "distance": "500m from JKUAT Main Gate",
+            "coordinates": {
+            "lat": -1.0997,
+            "lng": 37.0149
+            }
+        },
+        "university": "JKUAT",
+        "universityShort": "JKUAT",
+        "description": "Budget-friendly bedsitter close to campus. Water and WiFi included in rent. Perfect for students on a tight budget.",
+        "landlord": {
+            "name": "Mary Njeri",
+            "phone": "+254734567890",
+            "verified": true,
+            "rating": 4.7,
+            "reviewCount": 31
+        },
+        "price": 7000,
+        "currency": "KES",
+        "priceIncludes": ["Water", "WiFi"],
+        "images": [
+            "/assets/rooms/room3-1.jpg"
+        ],
+        "roomType": "Bedsitter",
+        "amenities": [
+            "WiFi Included",
+            "Water Included",
+            "Cooking Allowed",
+            "Near Matatu Stage",
+            "Shopping Center Nearby",
+            "CCTV"
+        ],
+        "features": {
+            "furnished": false,
+            "bedrooms": 0,
+            "bathrooms": 1,
+            "kitchen": "Built-in",
+            "parking": true,
+            "pets": false
+        },
+        "availability": {
+            "available": true,
+            "availableFrom": "2025-11-15",
+            "minimumStay": "3 months",
+            "deposit": 7000
+        },
+        "featured": false,
+        "verified": true,
+        "borderColor": "border-yellow-400"
+        },
+        {
+        "id": 4,
+        "title": "Shared Room near Daystar",
+        "slug": "shared-room-daystar",
+        "location": {
+            "area": "Athi River",
+            "city": "Machakos",
+            "description": "Walking distance",
+            "distance": "800m from Daystar University",
+            "coordinates": {
+            "lat": -1.4540,
+            "lng": 36.9830
+            }
+        },
+        "university": "Daystar University",
+        "universityShort": "Daystar",
+        "description": "Affordable shared room for two students. All utilities included. Christian environment.",
+        "landlord": {
+            "name": "David Mutua",
+            "phone": "+254745678901",
+            "verified": true,
+            "rating": 4.5,
+            "reviewCount": 12
+        },
+        "price": 5000,
+        "currency": "KES",
+        "priceIncludes": ["Water", "WiFi", "Electricity", "Garbage"],
+        "images": [
+            "/assets/rooms/room4-1.jpg",
+            "/assets/rooms/room4-2.jpg"
+        ],
+        "roomType": "Shared Room",
+        "amenities": [
+            "All Bills Included",
+            "Shared Kitchen",
+            "Study Area",
+            "Laundry",
+            "Security",
+            "Chapel Nearby"
+        ],
+        "features": {
+            "furnished": true,
+            "bedrooms": 1,
+            "bathrooms": 1,
+            "kitchen": "Shared",
+            "parking": false,
+            "pets": false,
+            "occupants": 2
+        },
+        "availability": {
+            "available": true,
+            "availableFrom": "2025-12-01",
+            "minimumStay": "4 months",
+            "deposit": 5000
+        },
+        "featured": false,
+        "verified": true,
+        "borderColor": "border-blue-400"
+        },
+        {
+        "id": 5,
+        "title": "Spacious 1BR near Strathmore",
+        "slug": "spacious-1br-strathmore",
+        "location": {
+            "area": "Madaraka",
+            "city": "Nairobi",
+            "description": "15 min to campus",
+            "distance": "2 km from Strathmore University",
+            "coordinates": {
+            "lat": -1.3075,
+            "lng": 36.8117
+            }
+        },
+        "university": "Strathmore University",
+        "universityShort": "Strathmore",
+        "description": "Premium one-bedroom apartment in a serene neighborhood. Fully furnished with modern amenities. Perfect for serious students or young professionals.",
+        "landlord": {
+            "name": "Grace Achieng",
+            "phone": "+254756789012",
+            "verified": true,
+            "rating": 4.9,
+            "reviewCount": 27
+        },
+        "price": 18000,
+        "currency": "KES",
+        "priceIncludes": ["Water", "WiFi", "Security"],
+        "images": [
+            "/assets/rooms/room5-1.jpg",
+            "/assets/rooms/room5-2.jpg",
+            "/assets/rooms/room5-3.jpg"
+        ],
+        "roomType": "1 Bedroom",
+        "amenities": [
+            "Fully Furnished",
+            "WiFi Included",
+            "Water Included",
+            "24/7 Security",
+            "Parking",
+            "Gym Access",
+            "Swimming Pool",
+            "Backup Generator"
+        ],
+        "features": {
+            "furnished": true,
+            "bedrooms": 1,
+            "bathrooms": 1,
+            "kitchen": "Private",
+            "parking": true,
+            "pets": false,
+            "balcony": true
+        },
+        "availability": {
+            "available": true,
+            "availableFrom": "2025-12-15",
+            "minimumStay": "6 months",
+            "deposit": 36000
+        },
+        "featured": false,
+        "verified": true,
+        "borderColor": "border-green-400"
+        },
+        {
+        "id": 6,
+        "title": "Budget Single Room USIU",
+        "slug": "budget-single-room-usiu",
+        "location": {
+            "area": "Kasarani",
+            "city": "Nairobi",
+            "description": "Near USIU",
+            "distance": "1 km from USIU",
+            "coordinates": {
+            "lat": -1.2230,
+            "lng": 36.8906
+            }
+        },
+        "university": "USIU",
+        "universityShort": "USIU",
+        "description": "Clean and affordable single room in Kasarani. Water included, close to matatu stage and shopping centers.",
+        "landlord": {
+            "name": "John Otieno",
+            "phone": "+254767890123",
+            "verified": true,
+            "rating": 4.4,
+            "reviewCount": 15
+        },
+        "price": 6500,
+        "currency": "KES",
+        "priceIncludes": ["Water"],
+        "images": [
+            "/assets/rooms/room6-1.jpg"
+        ],
+        "roomType": "Single Room",
+        "amenities": [
+            "Water Included",
+            "CCTV",
+            "Matatu Stage",
+            "Shopping Mall Nearby",
+            "Borehole Water",
+            "Spacious"
+        ],
+        "features": {
+            "furnished": false,
+            "bedrooms": 1,
+            "bathrooms": 1,
+            "kitchen": "Shared",
+            "parking": true,
+            "pets": false
+        },
+        "availability": {
+            "available": true,
+            "availableFrom": "2025-11-18",
+            "minimumStay": "3 months",
+            "deposit": 6500
+        },
+        "featured": false,
+        "verified": true,
+        "borderColor": "border-orange-400"
+        }
+    ],
+    "universities": [
+        {
+        "id": 1,
+        "name": "University of Nairobi",
+        "short": "UoN",
+        "location": "Nairobi",
+        "campuses": ["Main Campus", "Chiromo", "Lower Kabete"]
+        },
+        {
+        "id": 2,
+        "name": "Kenyatta University",
+        "short": "KU",
+        "location": "Nairobi",
+        "campuses": ["Main Campus"]
+        },
+        {
+        "id": 3,
+        "name": "JKUAT",
+        "short": "JKUAT",
+        "location": "Juja",
+        "campuses": ["Main Campus"]
+        },
+        {
+        "id": 4,
+        "name": "Daystar University",
+        "short": "Daystar",
+        "location": "Athi River",
+        "campuses": ["Athi River", "Nairobi"]
+        },
+        {
+        "id": 5,
+        "name": "Strathmore University",
+        "short": "Strathmore",
+        "location": "Nairobi",
+        "campuses": ["Madaraka"]
+        },
+        {
+        "id": 6,
+        "name": "USIU",
+        "short": "USIU",
+        "location": "Nairobi",
+        "campuses": ["Kasarani"]
+        }
+    ],
+    "filters": {
+        "priceRanges": [
+        { "label": "Under 5K", "min": 0, "max": 5000 },
+        { "label": "5K - 10K", "min": 5000, "max": 10000 },
+        { "label": "10K - 15K", "min": 10000, "max": 15000 },
+        { "label": "15K - 20K", "min": 15000, "max": 20000 },
+        { "label": "20K+", "min": 20000, "max": 100000 }
+        ],
+        "roomTypes": [
+        "Bedsitter",
+        "Single Room",
+        "Shared Room",
+        "Studio",
+        "1 Bedroom",
+        "2 Bedroom"
+        ],
+        "popularAmenities": [
+        "WiFi",
+        "Water Included",
+        "24/7 Security",
+        "Parking",
+        "Kitchen",
+        "Furnished",
+        "Near Matatu Stage",
+        "CCTV"
+        ],
+        "areas": [
+        "Parklands",
+        "Kahawa Wendani",
+        "Juja",
+        "Athi River",
+        "Madaraka",
+        "Kasarani",
+        "CBD",
+        "Westlands"
+        ]
+    }
+    }
