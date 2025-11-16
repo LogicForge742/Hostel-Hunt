@@ -14,6 +14,8 @@ import ConfirmationPage from '../pages/booking/ConfirmationPage.jsx';
 import DashboardLayout from '../pages/dashboard/DashboardLayout.jsx';
 import BookingHistory from '../pages/dashboard/BookingHistory.jsx';
 import Favorites from '../pages/dashboard/Favorites.jsx';
+import HostelBookings from "../pages/dashboard/HostelBookings";
+
 
 export default function AppRouter() {
   return (
@@ -22,6 +24,8 @@ export default function AppRouter() {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchResultsPage />} />
         <Route path="/hostel/:id" element={<HostelDetailPage />} />
+        <Route path="/dashboard/bookings" element={<HostelBookings />} />
+
 
         {/* Auth */}
         <Route path="/login" element={<LoginPage />} />
