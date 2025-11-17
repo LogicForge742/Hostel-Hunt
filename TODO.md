@@ -1,3 +1,7 @@
-- [x] Fix booking availability check to account for hostel capacity instead of preventing all overlapping bookings
-- [x] Update check_availability method in booking_service.py to sum guests of overlapping bookings
-- [x] Test the booking creation after fix - Backend and Frontend are running, ready for testing
+# TODO: Fix Flask Run Error
+
+- [ ] Navigate to Hostel-Backend directory and activate venv
+- [ ] Reinstall dependencies from requirements.txt
+- [ ] Set FLASK_APP environment variable to run.py
+- [ ] Test the fix by running `flask run`
+- [ ] Verify the server starts successfully
