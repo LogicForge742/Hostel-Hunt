@@ -8,41 +8,19 @@ export default {
     extend: {
       colors: {
         //brand colors
-        primary: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',  //main purple
-          700: '#7e22ce',
-          800: '#6b21a8',
-          900: '#581c87',
+        primary: '#9333ea',  // deep purple for primary accents
+        hover: '#c084fc',    // soft purple for hover states
+        alert: '#f59e0b',    // bright orange for alerts and important notices
+        highlight: '#fde68a', // soft orange for light highlights on cards
+        background: '#ffffff', // white for main backgrounds
+        'text-body': '#374151', // dark grey for body text
+        'button-primary': {
+          bg: '#ffffff',    // white background
+          text: '#000000'   // black text
         },
-        secondary: {
-          50: '#fdf2f8',
-          100: '#fce7f3',
-          200: '#fbcfe8',
-          300: '#f9a8d4',
-          400: '#f472b6',
-          500: '#ec4899',  // main pink
-          600: '#db2777',
-          700: '#be185d',
-          800: '#9f1239',
-          900: '#831843',
-        },
-        accent: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',  // main orange
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
+        'button-secondary': {
+          bg: '#000000',    // black background
+          text: '#ffffff'   // white text
         }
       },
       fontFamily: {

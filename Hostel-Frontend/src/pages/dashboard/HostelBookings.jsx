@@ -53,7 +53,7 @@ const HostelBookings = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -61,7 +61,7 @@ const HostelBookings = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Hostel Bookings</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && <p className="text-alert mb-4">{error}</p>}
 
       {bookings.length === 0 ? (
         <p>No bookings found.</p>
@@ -97,12 +97,12 @@ const HostelBookings = () => {
                 <span
                   className={`px-3 py-1 rounded text-white ${
                     booking.status === "confirmed"
-                      ? "bg-blue-600"
+                      ? "bg-primary"
                       : booking.status === "completed"
                       ? "bg-green-600"
                       : booking.status === "cancelled"
-                      ? "bg-red-600"
-                      : "bg-gray-500"
+                      ? "bg-alert"
+                      : "bg-text-body"
                   }`}
                 >
                   {booking.status.toUpperCase()}
@@ -114,7 +114,7 @@ const HostelBookings = () => {
                 {booking.status === "confirmed" && (
                   <button
                     onClick={() => updateStatus(booking.id, "completed")}
-                    className="bg-green-600 text-white px-4 py-1 rounded"
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                   >
                     Complete
                   </button>
@@ -122,7 +122,7 @@ const HostelBookings = () => {
                 {booking.status === "confirmed" && (
                   <button
                     onClick={() => updateStatus(booking.id, "cancelled")}
-                    className="bg-red-600 text-white px-4 py-1 rounded"
+                    className="bg-alert text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                   >
                     Cancel
                   </button>

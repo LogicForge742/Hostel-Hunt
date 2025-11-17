@@ -13,25 +13,23 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             
-            <span className="text-2xl font-bold">
-              <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-                Hostel Hunt
-              </span>
+            <span className="text-2xl font-bold text-primary">
+              Hostel Hunt
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             
-            <Link 
-              to="/Login" 
-              className="text-gray-700 hover:text-purple-600 font-medium transition-colors"
+            <Link
+              to="/Login"
+              className="text-text-body hover:text-hover font-medium transition-colors"
             >
               Login
             </Link>
             <button
               onClick={() => navigate('/signup')}
-              className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transition-all duration-300 border-2 border-black"
+              className="bg-primary text-white px-6 py-2.5 rounded-full font-semibold hover:bg-hover transition-all duration-300"
             >
               Register
             </button>
@@ -73,15 +71,15 @@ export default function Header() {
               <Link
                 to="/"
                 onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-text-body hover:bg-highlight hover:text-primary rounded-lg transition-colors font-medium"
               >
                 Home
               </Link>
-              
+
               <Link
                 to="/login"
                 onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-text-body hover:bg-highlight hover:text-primary rounded-lg transition-colors font-medium"
               >
                 Login
               </Link>
@@ -90,7 +88,7 @@ export default function Header() {
                   setMobileOpen(false);
                   navigate('/signup');
                 }}
-                className="w-full text-left px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg font-semibold mt-2"
+                className="w-full text-left px-4 py-3 bg-primary text-white rounded-lg font-semibold mt-2 hover:bg-hover"
               >
                 Register
               </button>
