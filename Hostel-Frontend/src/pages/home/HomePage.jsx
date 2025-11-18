@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SearchBar from '../../components/SearchBar';
 import { fetchFeaturedRooms } from '../../utils/api.js';
+import { useAuth } from '../../context/AuthContext';
 
 const HomePage = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [featuredRooms, setFeaturedRooms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -226,19 +228,18 @@ const HomePage = () => {
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {[
                 {
-                    icon: '💬',
                     title: 'Direct Connect',
                     description: 'No middlemen or broker fees. Chat directly with verified landlords',
                     color: 'from-purple-400 to-purple-600'
                 },
                 {
-                    icon: '💰',
+                    
                     title: 'Affordable Options',
                     description: 'Find rooms under 20K near your university with transparent pricing',
                     color: 'from-pink-400 to-pink-600'
                 },
                 {
-                    icon: '✅',
+                    
                     title: 'Verified Listings',
                     description: 'All landlords verified. Read reviews from fellow students',
                     color: 'from-orange-400 to-orange-600'
@@ -266,17 +267,19 @@ const HomePage = () => {
 
 
         {/* Floating Post Room Button */}
-        <motion.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1, type: "spring", stiffness: 260, damping: 20 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate('/dashboard')}
-            className="fixed bottom-8 right-8 bg-linear-to-r from-orange-500 to-pink-500 text-white px-6 py-4 rounded-full font-bold shadow-2xl flex items-center gap-2 border-3 border-black hover:shadow-3xl transition-all duration-300 z-50"
-        >
-            <span className="hidden md:inline">Post Your Room</span>
-        </motion.button>
+        {user?.role === 'landlord' && (
+            <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1, type: "spring", stiffness: 260, damping: 20 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => navigate('/dashboard')}
+                className="fixed bottom-8 right-8 bg-linear-to-r from-orange-500 to-pink-500 text-white px-6 py-4 rounded-full font-bold shadow-2xl flex items-center gap-2 border-3 border-black hover:shadow-3xl transition-all duration-300 z-50"
+            >
+                <span className="hidden md:inline">Post Your Room</span>
+            </motion.button>
+        )}
       </div>
     );
     };
