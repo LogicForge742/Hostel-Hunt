@@ -1,4 +1,5 @@
 from app.models.user import User
+from app.models.landlord import Landlord
 from app.extensions.db import db
 from app.utils.jwt_utils import generate_tokens
 
@@ -22,6 +23,12 @@ class AuthService:
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
+
+        # Create landlord profile if role is landlord
+        if role == "landlord":
+            landlord = Landlord(user_id=user.id, contact_email=email, contact_phone=phone_number)
+            db.session.add(landlord)
+            db.session.commit()
 
         tokens = generate_tokens(user.id)
 

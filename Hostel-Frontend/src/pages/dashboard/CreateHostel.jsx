@@ -53,8 +53,7 @@ const CreateHostel = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const imageUrls = files.map(file => URL.createObjectURL(file));
-    setFormData({ ...formData, images: imageUrls });
+    setFormData({ ...formData, images: files });
   };
 
   const handleSubmit = async (e) => {
@@ -212,10 +211,10 @@ const CreateHostel = () => {
           />
           {formData.images.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
-              {formData.images.map((image, index) => (
+              {formData.images.map((file, index) => (
                 <img
                   key={index}
-                  src={image}
+                  src={URL.createObjectURL(file)}
                   alt={`Hostel image ${index + 1}`}
                   className="w-20 h-20 object-cover rounded border"
                 />

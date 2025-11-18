@@ -8,6 +8,7 @@ from flask_cors import CORS
 
 # Import extensions
 from .extensions.db import db
+from flask_migrate import Migrate
 from .extensions.jwt import jwt
 try:
     from .extensions.mail import mail
@@ -55,6 +56,7 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
+    migrate = Migrate(app, db)
     try:
         jwt.init_app(app)
     except Exception:

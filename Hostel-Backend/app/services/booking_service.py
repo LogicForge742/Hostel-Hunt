@@ -122,6 +122,9 @@ class BookingService:
             booking.status = 'cancelled'
             booking.updated_at = datetime.utcnow()
             db.session.commit()
+
+            # Recalculate availability for the hostel (this will update the available_rooms property)
+            # The available_rooms property in Hostel model automatically recalculates based on current bookings
             return booking.to_dict()
         except Exception as e:
             db.session.rollback()
@@ -173,8 +176,16 @@ class BookingService:
             raise e
 
     @staticmethod
-    def get_landlord_bookings(landlord_id, page=1, per_page=20, status=None):
+    def get_landlord_bookings(user_id, page=1, per_page=20, status=None):
         """Get all bookings for all hostels owned by a landlord"""
+        # Get landlord profile to find landlord_id
+        from ..models.user import User
+        user = User.query.get_or_404(user_id)
+        if not user.landlord_profile:
+            raise ValueError("User is not a landlord")
+
+        landlord_id = user.landlord_profile.id
+
         # Get all hostel IDs owned by the landlord
         hostels = Hostel.query.filter_by(landlord_id=landlord_id).all()
         hostel_ids = [h.id for h in hostels]

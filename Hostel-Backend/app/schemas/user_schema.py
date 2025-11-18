@@ -21,7 +21,7 @@ class UserRegistrationSchema(Schema):
     @validates('password')
     def validate_password_strength(self, value):
         if not is_valid_password(value):
-            raise ValidationError('Password must be at least 6 characters long')
+            raise ValidationError('Password must be at least 8 characters with uppercase, lowercase, number, and special character')
 
     @validates('phone_number')
     def validate_phone(self, value):
@@ -52,7 +52,7 @@ class ChangePasswordSchema(Schema):
     @validates('new_password')
     def validate_password_strength(self, value):
         if not is_valid_password(value):
-            raise ValidationError('Password must be at least 6 characters long')
+            raise ValidationError('Password must be at least 8 characters with uppercase, lowercase, number, and special character')
 
 class LandlordProfileSchema(Schema):
     """Schema for landlord profile creation/update validation"""

@@ -1,12 +1,15 @@
 import os
+from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecret123")
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "sqlite:///hostel.db"
+        "DATABASE_URL", "postgresql://postgres:limo91we@localhost:5432/hostel-hunt"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwtsecret123")
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=7500000)
+    JWT_CSRF_IN_COOKIES = True
 
     # CORS configuration
     CORS_HEADERS = 'Content-Type'
