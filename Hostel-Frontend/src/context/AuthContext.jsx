@@ -4,7 +4,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 // Create AuthContext here
 export const AuthContext = createContext();
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://hostel-hunt-4-zrfm.onrender.com';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
