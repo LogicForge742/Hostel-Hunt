@@ -74,8 +74,80 @@ export const fetchRooms = async (filters = {}) => {
   }
 
   const response = await apiRequest(`/hostels/?${params}`);
+
+  // Normalize backend hostel objects into the richer shape expected by Card/SearchResultsPage
+  const normalizeHostel = (hostel) => {
+    if (!hostel) return null;
+
+    // Location: backend likely returns a simple string like "Area, City"
+    const rawLocation = hostel.location || '';
+    const [area = '', city = ''] = rawLocation.split(',').map(part => part.trim());
+
+    return {
+      // Keep original id and also expose slug/id for routing
+      id: hostel.id,
+      slug: hostel.id, // Card links to `/hostel/${slug}`; detail page accepts an id param
+
+      // Basic text fields
+      title: hostel.name || hostel.title || 'Hostel',
+      description: hostel.description || '',
+
+      // Location object used by Card
+      location: {
+        area,
+        city,
+        // If backend later adds distance, Card will display it; default empty for now
+        distance: hostel.distance || ''
+      },
+
+      // Pricing
+      price: hostel.price,
+      currency: hostel.currency || 'KES',
+
+      // Room meta
+      roomType: hostel.room_type || hostel.roomType || 'Room',
+
+      // Images: ensure we always give Card an array
+      images: Array.isArray(hostel.images) ? hostel.images : (hostel.images ? [hostel.images] : []),
+
+      // Amenities: backend may store as JSON/dict; flatten keys with truthy values into nice labels
+      amenities: (() => {
+        const src = hostel.amenities;
+        if (!src) return [];
+        if (Array.isArray(src)) return src;
+        if (typeof src === 'object') {
+          return Object.entries(src)
+            .filter(([, value]) => Boolean(value))
+            .map(([key]) => key.replace(/_/g, ' '));
+        }
+        return [];
+      })(),
+
+      // Landlord summary (optional)
+      landlord: hostel.landlord ? {
+        name: hostel.landlord.name || hostel.landlord.business_name || 'Landlord',
+        verified: Boolean(hostel.landlord.is_verified ?? hostel.landlord.verified),
+        rating: typeof hostel.landlord.rating === 'number' ? hostel.landlord.rating : undefined,
+        reviewCount: typeof hostel.landlord.reviewCount === 'number' ? hostel.landlord.reviewCount : undefined
+      } : undefined,
+
+      // Feature flags & badges
+      features: hostel.features || {},
+      availability: hostel.availability || {},
+      featured: Boolean(hostel.is_featured ?? hostel.featured),
+      verified: Boolean(hostel.is_verified ?? hostel.verified),
+
+      // Optional per-card styling hook
+      borderColor: hostel.borderColor || 'border-purple-400'
+    };
+  };
+
+  const normalizedRooms = (response.hostels || [])
+    .map(normalizeHostel)
+    .filter(Boolean);
+
   return {
-    rooms: response.hostels || [],
+    rooms: normalizedRooms,
     total: response.total || 0,
     page: response.current_page || 1,
     limit: response.per_page || 12,

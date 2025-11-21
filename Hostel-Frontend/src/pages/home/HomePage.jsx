@@ -64,8 +64,16 @@ const HomePage = () => {
     }, []);
     //triggered when search is performed in SearchBar
     const handleSearch = (searchParams) => {
-        //convert search parameters into a query string and redirects the user to the search page
-        const params = new URLSearchParams(searchParams);
+        // Build query string in the format expected by the /search page + backend filters.
+        const params = new URLSearchParams();
+
+        // Map the main text query from SearchBar to "location" so SearchResultsPage/fetchRooms can use it.
+        if (searchParams.query && searchParams.query.trim()) {
+            params.set('location', searchParams.query.trim());
+        }
+
+        // In future we can add more mappings (price, amenities, etc.) without changing SearchBar.
+
         navigate(`/search?${params.toString()}`);
     };
 
