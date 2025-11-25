@@ -9,14 +9,22 @@ class HostelCreateSchema(Schema):
     price = fields.Float(required=True, validate=validate.Range(min=0))
     currency = fields.Str(required=False, default='KES', validate=validate.Length(max=3))
     capacity = fields.Int(required=True, validate=validate.Range(min=1, max=1000))
+    
+    # UPDATED: Added specific room types requested
     room_type = fields.Str(
         required=True,
-        validate=validate.OneOf(['single', 'double', 'triple', 'dormitory', 'apartment'])
+        validate=validate.OneOf([
+            'bedsitter', 'studio', '1_bedroom', '2_bedroom', '3_bedroom', 
+            'single', 'double', 'triple', 'dormitory'
+        ])
     )
+    
     amenities = fields.List(fields.Int(), required=False, default=[])
-    images = fields.List(fields.Str(), required=False, default=[])
+    images = fields.List(fields.Str(), required=False, default=[], validate=validate.Length(max=6))
     latitude = fields.Float(required=False, allow_none=True, validate=validate.Range(min=-90, max=90))
     longitude = fields.Float(required=False, allow_none=True, validate=validate.Range(min=-180, max=180))
+    
+    # Features will accept arbitrary keys for rent_included, bathrooms, etc.
     features = fields.Dict(required=False, default={})
     is_verified = fields.Bool(required=False, default=False)
     is_featured = fields.Bool(required=False, default=False)
@@ -25,16 +33,16 @@ class HostelCreateSchema(Schema):
     def validate_amenities(self, value):
         if not isinstance(value, list):
             raise ValidationError('Amenities must be a list of integers')
-        if len(value) > 50:
-            raise ValidationError('Too many amenities selected')
 
     @validates('images')
     def validate_images(self, value):
-        if len(value) > 20:
-            raise ValidationError('Too many images')
+        if len(value) > 6:
+            raise ValidationError('Maximum 6 images allowed')
         for url in value:
             if not isinstance(url, str) or len(url) > 500:
                 raise ValidationError('Invalid image URL')
+
+# ... (Rest of the file remains the same)
 
 class HostelUpdateSchema(Schema):
     """Schema for hostel update validation"""

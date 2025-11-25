@@ -1,6 +1,5 @@
 from ..extensions import db
 from datetime import datetime
-import json
 
 class Hostel(db.Model):
     __tablename__ = "hostels"
@@ -14,12 +13,12 @@ class Hostel(db.Model):
     price = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(3), default="KES")
     capacity = db.Column(db.Integer, nullable=False)
-    room_type = db.Column(db.String(50), nullable=False)  # single, double, shared, etc.
+    room_type = db.Column(db.String(50), nullable=False)
     landlord_id = db.Column(db.Integer, db.ForeignKey('landlords.id'), nullable=False)
-    images = db.Column(db.JSON)  # Array of image URLs
-    amenities = db.Column(db.JSON)  # Array of amenity IDs
-    features = db.Column(db.JSON)  # JSON object with bedrooms, bathrooms, furnished, etc.
-    availability = db.Column(db.JSON)  # JSON object with available dates, minimum stay, etc.
+    images = db.Column(db.JSON)
+    amenities = db.Column(db.JSON)
+    features = db.Column(db.JSON)
+    availability = db.Column(db.JSON)
     is_verified = db.Column(db.Boolean, default=False)
     is_featured = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -36,39 +35,23 @@ class Hostel(db.Model):
         from ..models.booking import Booking
         from datetime import date
 
-        # Get current confirmed bookings that haven't ended yet
         current_bookings = Booking.query.filter(
             Booking.hostel_id == self.id,
             Booking.status.in_(['confirmed', 'upcoming']),
             Booking.check_out >= date.today()
         ).all()
 
-        # Sum all guests from current bookings
         occupied_guests = sum(booking.guests for booking in current_bookings)
-
-        # Available rooms = total capacity - occupied guests
         return max(0, self.capacity - occupied_guests)
 
     def to_dict(self):
-        # Normalize stored image paths to web-facing URLs under /uploads/
-        images = self.images or []
-        if isinstance(images, str):
-            try:
-                images = json.loads(images)
-            except Exception:
-                images = [images]
-
-        normalized_images = []
-        for img in images:
-            if not isinstance(img, str):
-                continue
-            if img.startswith("http://") or img.startswith("https://"):
-                normalized_images.append(img)
-            else:
-                # Collapse any absolute filesystem path containing /uploads/ back to a web path
-                if "/uploads/" in img:
-                    img = img[img.index("/uploads/"):]
-                normalized_images.append(img)
+        # Retrieve stored availability settings
+        avail_settings = self.availability or {}
+        
+        # AUTO-UPDATE: If capacity is 0, force availability to False
+        is_available = avail_settings.get('available', True)
+        if self.available_rooms <= 0:
+            is_available = False
 
         return {
             "id": self.id,
@@ -83,10 +66,14 @@ class Hostel(db.Model):
             "available_rooms": self.available_rooms,
             "room_type": self.room_type,
             "landlord_id": self.landlord_id,
-            "images": normalized_images,
+            "images": self.images or [],
             "amenities": self.amenities or [],
             "features": self.features or {},
-            "availability": self.availability or {},
+            # Merged availability logic
+            "availability": {
+                **avail_settings,
+                "available": is_available 
+            },
             "is_verified": self.is_verified,
             "is_featured": self.is_featured,
             "created_at": self.created_at.isoformat(),

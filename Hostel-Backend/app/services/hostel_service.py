@@ -1,343 +1,213 @@
-import os
-from werkzeug.utils import secure_filename
 from ..extensions import db
 from ..models.hostel import Hostel
 from ..models.amenity import Amenity
 from ..models.review import Review
 from sqlalchemy import and_, or_, func
 from datetime import datetime
-from flask import current_app
 
 class HostelService:
     @staticmethod
     def get_all_hostels(page=1, per_page=20, filters=None):
         """Get all hostels with pagination and filters"""
-        try:
-            query = Hostel.query
+        query = Hostel.query
 
-            if filters:
-                # Location filter
-                if filters.get('location'):
-                    location_term = f"%{filters['location']}%"
-                    query = query.filter(
-                        or_(
-                            Hostel.location.ilike(location_term),
-                            Hostel.name.ilike(location_term)
-                        )
+        if filters:
+            # Location Filter: Now searches Name, Location, AND University field
+            if filters.get('location'):
+                location_term = f"%{filters['location']}%"
+                query = query.filter(
+                    or_(
+                        Hostel.location.ilike(location_term),
+                        Hostel.name.ilike(location_term),
+                        # NEW: Search inside the JSON features for the university name
+                        func.cast(Hostel.features['university'], db.String).ilike(location_term)
                     )
+                )
 
-                # Price range filter
-                if filters.get('min_price'):
-                    query = query.filter(Hostel.price >= filters['min_price'])
-                if filters.get('max_price'):
-                    query = query.filter(Hostel.price <= filters['max_price'])
+            if filters.get('min_price'):
+                query = query.filter(Hostel.price >= filters['min_price'])
+            if filters.get('max_price'):
+                query = query.filter(Hostel.price <= filters['max_price'])
 
-                # Room type filter
-                if filters.get('room_type'):
-                    query = query.filter(Hostel.room_type.in_(filters['room_type']))
+            if filters.get('room_type'):
+                room_types = filters['room_type'] if isinstance(filters['room_type'], list) else [filters['room_type']]
+                query = query.filter(Hostel.room_type.in_(room_types))
 
-                # Capacity filter
-                if filters.get('min_capacity'):
-                    query = query.filter(Hostel.capacity >= filters['min_capacity'])
+            if filters.get('min_capacity'):
+                query = query.filter(Hostel.capacity >= filters['min_capacity'])
 
-                # Amenities filter
-                if filters.get('amenities'):
-                    # Filter hostels that have the selected amenities
-                    # amenities is expected to be a list of amenity keys like ['wifi', 'water', etc.]
-                    for amenity_key in filters['amenities']:
-                        # Check if the amenity exists in the hostel's amenities JSON
-                        query = query.filter(
-                            Hostel.amenities[amenity_key].as_boolean() == True
-                        )
+            if filters.get('verified_only'):
+                query = query.filter(Hostel.is_verified == True)
 
-                # Features filter
-                if filters.get('furnished') is not None:
-                    query = query.filter(
-                        Hostel.features['furnished'].as_boolean() == filters['furnished']
-                    )
+        # Sorting
+        sort_by = filters.get('sort_by', 'created_at') if filters else 'created_at'
+        if sort_by == 'price_asc':
+            query = query.order_by(Hostel.price.asc())
+        elif sort_by == 'price_desc':
+            query = query.order_by(Hostel.price.desc())
+        else:
+            query = query.order_by(Hostel.created_at.desc())
 
-                # Verification filter
-                if filters.get('verified_only'):
-                    query = query.filter(Hostel.is_verified == True)
+        hostels = query.paginate(page=page, per_page=per_page, error_out=False)
 
-            # Sorting
-            sort_by = filters.get('sort_by', 'created_at') if filters else 'created_at'
-            if sort_by == 'price_asc':
-                query = query.order_by(Hostel.price.asc())
-            elif sort_by == 'price_desc':
-                query = query.order_by(Hostel.price.desc())
-            elif sort_by == 'rating':
-                # This would require a subquery for average rating
-                query = query.order_by(Hostel.created_at.desc())
-            else:
-                query = query.order_by(Hostel.created_at.desc())
-
-            # Pagination
-            hostels = query.paginate(page=page, per_page=per_page, error_out=False)
-
-            return {
-                'hostels': [hostel.to_dict() for hostel in hostels.items],
-                'total': hostels.total,
-                'pages': hostels.pages,
-                'current_page': hostels.page,
-                'per_page': hostels.per_page
-            }
-        except Exception as e:
-            raise ValueError(f"Failed to retrieve hostels: {str(e)}")
+        return {
+            'hostels': [hostel.to_dict() for hostel in hostels.items],
+            'total': hostels.total,
+            'pages': hostels.pages,
+            'current_page': hostels.page,
+            'per_page': hostels.per_page
+        }
 
     @staticmethod
     def get_hostel_by_id(hostel_id):
         """Get a single hostel by ID with related data"""
-        try:
-            hostel = Hostel.query.get_or_404(hostel_id)
+        hostel = Hostel.query.get_or_404(hostel_id)
 
-            # Calculate average rating
-            avg_rating = db.session.query(func.avg(Review.rating)).filter(
-                Review.hostel_id == hostel_id
-            ).scalar() or 0.0
+        avg_rating = db.session.query(func.avg(Review.rating)).filter(
+            Review.hostel_id == hostel_id
+        ).scalar() or 0.0
 
-            # Get review count
-            review_count = Review.query.filter_by(hostel_id=hostel_id).count()
+        review_count = Review.query.filter_by(hostel_id=hostel_id).count()
+        features = hostel.features or {}
+        availability = hostel.availability or {}
 
-            # Ensure JSON fields are dicts
-            import json
-            features = hostel.features
-            if isinstance(features, str):
-                features = json.loads(features)
-            features = features or {}
+        location_parts = hostel.location.split(',') if hostel.location else ['', '']
+        area = location_parts[0].strip() if len(location_parts) > 0 else ''
+        city = location_parts[1].strip() if len(location_parts) > 1 else ''
 
-            availability = hostel.availability
-            if isinstance(availability, str):
-                availability = json.loads(availability)
-            availability = availability or {}
+        amenities_list = []
+        if hostel.amenities and isinstance(hostel.amenities, list) and len(hostel.amenities) > 0:
+            found_amenities = Amenity.query.filter(Amenity.id.in_(hostel.amenities)).all()
+            amenities_list = [a.name for a in found_amenities]
 
-            amenities = hostel.amenities
-            if isinstance(amenities, str):
-                amenities = json.loads(amenities)
-            amenities = amenities or {}
-
-            # Parse location string into components (assuming format: "Area, City")
-            location_parts = hostel.location.split(',') if hostel.location and ',' in hostel.location else [hostel.location, '']
-            area = location_parts[0].strip() if len(location_parts) > 0 else ''
-            city = location_parts[1].strip() if len(location_parts) > 1 else ''
-
-            # Transform amenities from dict to array of strings
-            amenities_list = []
-            if amenities:
-                for amenity, available in amenities.items():
-                    if available:
-                        # Convert snake_case to Title Case
-                        amenity_name = amenity.replace('_', ' ').title()
-                        amenities_list.append(amenity_name)
-
-            # Transform landlord data
-            landlord_data = None
-            if hostel.landlord:
-                landlord_data = {
-                    'name': hostel.landlord.business_name or hostel.landlord.user.name if hostel.landlord.user else 'Unknown Landlord',
-                    'verified': hostel.landlord.is_verified,
-                    'rating': float(avg_rating),
-                    'reviewCount': review_count
-                }
-
-            # Transform availability data
-            availability_data = {
-                'available': availability.get('available', True),
-                'availableFrom': availability.get('available_from', '2024-01-01'),
-                'minimumStay': availability.get('minimum_stay', '1 month'),
-                'deposit': availability.get('deposit', 0)
+        landlord_data = None
+        if hostel.landlord:
+            landlord_data = {
+                'name': hostel.landlord.business_name or (hostel.landlord.user.name if hostel.landlord.user else 'Unknown'),
+                'verified': hostel.landlord.is_verified,
+                'rating': float(avg_rating),
+                'reviewCount': review_count,
+                'phone': hostel.landlord.contact_phone or (hostel.landlord.user.phone_number if hostel.landlord.user else 'Not Available')
             }
 
-            # What's included in rent (price_includes)
+        availability_data = {
+            'available': availability.get('available', True),
+            'availableFrom': availability.get('available_from', '2024-01-01'),
+            'minimumStay': availability.get('minimum_stay', '1 month'),
+            'deposit': availability.get('deposit', 0)
+        }
+
+        price_includes = features.get('rent_included', [])
+        # FIX: Corrected typo below (was notQP)
+        if not price_includes: 
             price_includes = availability.get('price_includes', ['Water', 'Electricity'])
 
-            # Ensure images is a list and normalize any absolute paths to web paths
-            images = hostel.images
-            if isinstance(images, str):
-                images = json.loads(images)
-            images = images or []
+        formatted_room_type = hostel.room_type.replace('_', ' ').title()
 
-            normalized_images = []
-            for img in images:
-                if not isinstance(img, str):
-                    continue
-                if img.startswith("http"):
-                    normalized_images.append(img)
-                else:
-                    # Collapse any absolute filesystem path containing /uploads/ back to a web path
-                    if "/uploads/" in img:
-                        img = img[img.index("/uploads/"):]
-                    normalized_images.append(img)
-
-            images = normalized_images
-
-            hostel_data = {
-                'id': hostel.id,
-                'title': hostel.name,
-                'description': hostel.description or '',
-                'location': {
-                    'area': area,
-                    'city': city,
-                    'distance': '2.5 km from campus',  # Default distance
-                    'description': f'Located in {area}, {city}'
-                },
-                'price': hostel.price,
-                'currency': hostel.currency,
-                'roomType': hostel.room_type.title(),
-                'images': images,
-                'amenities': amenities_list,
-                'features': {
-                    'bedrooms': features.get('bedrooms', 1),
-                    'bathrooms': features.get('bathrooms', 1),
-                    'furnished': features.get('furnished', False)
-                },
-                'availability': availability_data,
-                'priceIncludes': price_includes,
-                'featured': hostel.is_featured,
-                'verified': hostel.is_verified,
-                'landlord': landlord_data,
-                'similarRooms': []  # Will be populated by frontend or separate endpoint
-            }
-
-            return hostel_data
-        except Exception as e:
-            raise ValueError(f"Failed to retrieve hostel: {str(e)}")
+        return {
+            'id': hostel.id,
+            'title': hostel.name,
+            'description': hostel.description or '',
+            'location': {
+                'area': area,
+                'city': city,
+                'distance': '2.5 km from campus',
+                'description': f'Located in {area}, {city}'
+            },
+            'price': hostel.price,
+            'currency': hostel.currency,
+            'capacity': hostel.capacity,
+            'available_rooms': hostel.available_rooms,
+            'roomType': formatted_room_type,
+            'images': hostel.images or [],
+            'amenities': amenities_list,
+            'features': features,
+            'availability': availability_data,
+            'priceIncludes': price_includes,
+            'featured': hostel.is_featured,
+            'verified': hostel.is_verified,
+            'landlord': landlord_data,
+            'similarRooms': []
+        }
 
     @staticmethod
-    def create_hostel(hostel_data, landlord_id, files=None):
-        """Create a new hostel"""
-        try:
-            # Get the landlord profile ID from the user ID
-            from ..models.landlord import Landlord
-            landlord = Landlord.query.filter_by(user_id=landlord_id).first()
-            if not landlord:
-                raise ValueError("Landlord profile not found")
+    def create_hostel(hostel_data, landlord_id):
+        from ..models.landlord import Landlord
+        landlord = Landlord.query.filter_by(user_id=landlord_id).first()
+        if not landlord:
+            raise ValueError("Landlord profile not found")
 
-            # Handle file uploads if provided
-            image_urls = []
-            if files:
-                upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
-                for file in files:
-                    if file and file.filename:
-                        filename = secure_filename(file.filename)
-                        file_path = os.path.join(upload_folder, filename)
-                        file.save(file_path)
-                        # Always store web-facing paths under /uploads/, regardless of filesystem base
-                        image_urls.append(f"/uploads/{filename}")
-
-            # Add images to hostel_data if uploaded
-            if image_urls:
-                hostel_data['images'] = image_urls
-            
-            import json
-            if 'amenities' in hostel_data and isinstance(hostel_data['amenities'], str):
-                hostel_data['amenities'] = json.loads(hostel_data['amenities'])
-
-            hostel = Hostel(
-                landlord_id=landlord.id,
-                **hostel_data
-            )
-            db.session.add(hostel)
-            db.session.commit()
-            return hostel.to_dict()
-        except Exception as e:
-            db.session.rollback()
-            raise e
+        hostel = Hostel(
+            landlord_id=landlord.id,
+            **hostel_data
+        )
+        db.session.add(hostel)
+        db.session.commit()
+        return hostel.to_dict()
 
     @staticmethod
-    def update_hostel(hostel_id, update_data, landlord_id, files=None):
-        """Update an existing hostel"""
+    def update_hostel(hostel_id, update_data, landlord_id):
+        from ..models.landlord import Landlord
+        landlord = Landlord.query.filter_by(user_id=landlord_id).first()
+        if not landlord:
+             raise ValueError("Landlord profile not found")
+
         hostel = Hostel.query.filter_by(
             id=hostel_id,
-            landlord_id=landlord_id
+            landlord_id=landlord.id
         ).first_or_404()
 
-        try:
-            # Handle file uploads if provided
-            if files:
-                upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
-                image_urls = []
-                for file in files:
-                    if file and file.filename:
-                        filename = secure_filename(file.filename)
-                        file_path = os.path.join(upload_folder, filename)
-                        file.save(file_path)
-                        # Always store web-facing paths under /uploads/, regardless of filesystem base
-                        image_urls.append(f"/uploads/{filename}")
-                # Add new images to existing ones
-                existing_images = hostel.images or []
-                if isinstance(existing_images, str):
-                    import json
-                    existing_images = json.loads(existing_images)
-                hostel.images = existing_images + image_urls
+        for key, value in update_data.items():
+            if hasattr(hostel, key):
+                setattr(hostel, key, value)
 
-            for key, value in update_data.items():
-                if hasattr(hostel, key):
-                    setattr(hostel, key, value)
-
-            hostel.updated_at = datetime.utcnow()
-            db.session.commit()
-            return hostel.to_dict()
-        except Exception as e:
-            db.session.rollback()
-            raise e
+        hostel.updated_at = datetime.utcnow()
+        db.session.commit()
+        return hostel.to_dict()
 
     @staticmethod
     def delete_hostel(hostel_id, landlord_id):
-        """Delete a hostel"""
+        from ..models.landlord import Landlord
+        landlord = Landlord.query.filter_by(user_id=landlord_id).first()
+        if not landlord:
+             raise ValueError("Landlord profile not found")
+
         hostel = Hostel.query.filter_by(
             id=hostel_id,
-            landlord_id=landlord_id
+            landlord_id=landlord.id
         ).first_or_404()
 
-        try:
-            db.session.delete(hostel)
-            db.session.commit()
-            return True
-        except Exception as e:
-            db.session.rollback()
-            raise e
+        db.session.delete(hostel)
+        db.session.commit()
+        return True
 
     @staticmethod
     def get_hostels_by_landlord(landlord_id, page=1, per_page=20):
-        """Get all hostels for a specific landlord"""
-        try:
-            # Get the landlord profile ID from the user ID
-            from ..models.landlord import Landlord
-            landlord = Landlord.query.filter_by(user_id=landlord_id).first()
-            if not landlord:
-                return {
-                    'hostels': [],
-                    'total': 0,
-                    'pages': 0,
-                    'current_page': page
-                }
+        from ..models.landlord import Landlord
+        landlord = Landlord.query.filter_by(user_id=landlord_id).first()
+        if not landlord:
+            return {'hostels': [], 'total': 0, 'pages': 0, 'current_page': page}
 
-            hostels = Hostel.query.filter_by(landlord_id=landlord.id)\
-                .paginate(page=page, per_page=per_page, error_out=False)
+        hostels = Hostel.query.filter_by(landlord_id=landlord.id)\
+            .paginate(page=page, per_page=per_page, error_out=False)
 
-            return {
-                'hostels': [hostel.to_dict() for hostel in hostels.items],
-                'total': hostels.total,
-                'pages': hostels.pages,
-                'current_page': hostels.page
-            }
-        except Exception as e:
-            raise ValueError(f"Failed to retrieve hostels for landlord: {str(e)}")
+        return {
+            'hostels': [hostel.to_dict() for hostel in hostels.items],
+            'total': hostels.total,
+            'pages': hostels.pages,
+            'current_page': hostels.page
+        }
 
     @staticmethod
     def search_hostels(query, page=1, per_page=20):
-        """Search hostels by name, location, or description"""
         search_term = f"%{query}%"
+        # Also updated basic search to include university features
         hostels = Hostel.query.filter(
             or_(
                 Hostel.name.ilike(search_term),
                 Hostel.location.ilike(search_term),
-                Hostel.description.ilike(search_term)
+                Hostel.description.ilike(search_term),
+                func.cast(Hostel.features['university'], db.String).ilike(search_term)
             )
         ).paginate(page=page, per_page=per_page, error_out=False)
 
