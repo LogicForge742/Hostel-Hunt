@@ -22,7 +22,7 @@ class Config:
     # CORS Configuration
     CORS_HEADERS = 'Content-Type'
     # Add both localhost variations to be safe
-    CORS_ORIGINS = ["http://localhost:5174", "http://127.0.0.1:5174"] 
+    CORS_ORIGINS = ["https://hostel-hunt-five.vercel.app/", "https://hostel-hunt-five.vercel.app/"] 
     CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CORS_ALLOW_HEADERS = ["Content-Type", "Authorization"]
     CORS_SUPPORTS_CREDENTIALS = True
