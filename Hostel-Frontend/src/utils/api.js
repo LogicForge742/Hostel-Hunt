@@ -1,5 +1,5 @@
 // src/utils/api.js
-export const API_BASE_URL = 'http://localhost:5000';
+export const API_BASE_URL = 'https://hostel-hunt-11.onrender.com';
 /**
  * Helper function to make API requests
  * @param {string} endpoint - API endpoint
