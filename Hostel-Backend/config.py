@@ -20,8 +20,9 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     # CORS Configuration
     CORS_HEADERS = 'Content-Type'
-    # Add both localhost variations to be safe
-    CORS_ORIGINS = ["https://hostel-hunt-hh2j.vercel.app/"] 
+    # For now, allow all origins. Frontend uses Authorization headers (no cookies),
+    # so we can safely disable credentials and use a wildcard origin to avoid CORS misconfig.
+    CORS_ORIGINS = "*"
     CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CORS_ALLOW_HEADERS = ["Content-Type", "Authorization"]
-    CORS_SUPPORTS_CREDENTIALS = True
+    CORS_SUPPORTS_CREDENTIALS = False
