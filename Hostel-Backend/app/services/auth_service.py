@@ -26,9 +26,13 @@ class AuthService:
 
         # Create landlord profile if role is landlord
         if role == "landlord":
-            landlord = Landlord(user_id=user.id, contact_email=email, contact_phone=phone_number)
-            db.session.add(landlord)
-            db.session.commit()
+            try:
+                landlord = Landlord(user_id=user.id, contact_email=email, contact_phone=phone_number)
+                db.session.add(landlord)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                return None, f"Failed to create landlord profile: {str(e)}"
 
         tokens = generate_tokens(user.id)
 
