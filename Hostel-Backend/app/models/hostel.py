@@ -47,11 +47,10 @@ class Hostel(db.Model):
     def to_dict(self):
         # Retrieve stored availability settings
         avail_settings = self.availability or {}
-        
-        # AUTO-UPDATE: If capacity is 0, force availability to False
+
+        # Use stored availability setting - don't override based on current bookings
+        # Availability checking for specific dates is handled by BookingService.check_availability()
         is_available = avail_settings.get('available', True)
-        if self.available_rooms <= 0:
-            is_available = False
 
         return {
             "id": self.id,
@@ -69,10 +68,10 @@ class Hostel(db.Model):
             "images": self.images or [],
             "amenities": self.amenities or [],
             "features": self.features or {},
-            # Merged availability logic
+            # Use stored availability setting
             "availability": {
                 **avail_settings,
-                "available": is_available 
+                "available": is_available
             },
             "is_verified": self.is_verified,
             "is_featured": self.is_featured,

@@ -73,7 +73,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(hostels_bp, url_prefix="/hostels")
     app.register_blueprint(users_bp, url_prefix="/users")
-    app.register_blueprint(bookings_bp, url_prefix="/bookings")
+    app.register_blueprint(bookings_bp)
     app.register_blueprint(reviews_bp, url_prefix="/reviews")
     app.register_blueprint(search_bp, url_prefix="/search")
     app.register_blueprint(analytics_bp, url_prefix="/analytics")
