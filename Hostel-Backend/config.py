@@ -5,7 +5,7 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecret123")
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://hostel_hunt_db_user:m8hd5xOaTuBGpWiljXbtpjgE2t2cm0zt@dpg-d4ir8l63jp1c73ajnci0-a.oregon-postgres.render.com/hostel_hunt_db")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://hostelhunt_user:MoZftYabDPovpcOQjOmE1jjSoS3VuW5P@dpg-d4dgchmmcj7s73e0rme0-a.oregon-postgres.render.com/hostelhunt")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT

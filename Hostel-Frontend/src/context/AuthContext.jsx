@@ -56,10 +56,22 @@ export function AuthProvider({ children }) {
         body: JSON.stringify(data),
       });
 
-      const responseData = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const text = await response.text();
+      let responseData;
+
+      if (contentType.includes('application/json')) {
+        try {
+          responseData = JSON.parse(text);
+        } catch {
+          responseData = { message: text };
+        }
+      } else {
+        responseData = { message: text };
+      }
 
       if (!response.ok) {
-        throw new Error(responseData.message || 'Signup failed');
+        throw new Error(responseData.message || `Signup failed (status ${response.status})`);
       }
 
       // Store token and user data
