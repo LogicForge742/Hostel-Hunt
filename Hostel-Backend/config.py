@@ -22,7 +22,7 @@ class Config:
     CORS_HEADERS = 'Content-Type'
     # For now, allow all origins. Frontend uses Authorization headers (no cookies),
     # so we can safely disable credentials and use a wildcard origin to avoid CORS misconfig.
-    CORS_ORIGINS = "*"
+    CORS_ORIGINS = "https://hostel-hunt-4j89-git-main-milton-ngenos-projects.vercel.app/"
     CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CORS_ALLOW_HEADERS = ["Content-Type", "Authorization"]
     CORS_SUPPORTS_CREDENTIALS = False
