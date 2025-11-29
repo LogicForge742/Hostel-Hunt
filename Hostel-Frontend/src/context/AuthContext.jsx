@@ -1,10 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useContext } from "react";
+import { API_BASE_URL } from "../utils/api";
 
 // Create AuthContext here
 export const AuthContext = createContext();
-
-const API_BASE_URL = 'http://localhost:5000';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

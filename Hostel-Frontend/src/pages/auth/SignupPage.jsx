@@ -269,6 +269,7 @@ export default function Signup() {
                   <Field
                     name="password"
                     type="password"
+                    autoComplete="new-password"
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                     placeholder="Create a strong password"
                   />
