@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from config import Config
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -13,11 +13,33 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Initialize CORS
+    # Initialize CORS via flask-cors (kept) and enforce headers for all responses
     CORS(app, origins=app.config['CORS_ORIGINS'],
          methods=app.config['CORS_METHODS'],
          allow_headers=app.config['CORS_ALLOW_HEADERS'],
          supports_credentials=app.config['CORS_SUPPORTS_CREDENTIALS'])
+
+    # Ensure every response (including /auth/register landlord errors) carries CORS headers
+    @app.after_request
+    def add_cors_headers(response):
+        origin = request.headers.get("Origin")
+        if origin:
+            # Echo the calling Origin so browsers treat this as a non-wildcard CORS response
+            response.headers["Access-Control-Allow-Origin"] = origin
+            # Make it explicit that the response varies by Origin
+            existing_vary = response.headers.get("Vary")
+            if existing_vary:
+                if "Origin" not in existing_vary:
+                    response.headers["Vary"] = f"{existing_vary}, Origin"
+            else:
+                response.headers["Vary"] = "Origin"
+        else:
+            # Fallback for non-browser or non-CORS callers
+            response.headers.setdefault("Access-Control-Allow-Origin", "*")
+
+        response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        return response
 
     # Initialize extensions
     db.init_app(app)
