@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext.jsx';
-
-const API_BASE_URL = 'http://localhost:5000';
+import { API_BASE_URL } from '../utils/api';
 
 export const BookingContext = createContext();
 
