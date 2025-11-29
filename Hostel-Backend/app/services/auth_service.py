@@ -1,6 +1,6 @@
 from app.models.user import User
 from app.models.landlord import Landlord
-from app.extensions.db import db
+from ..extensions import db
 from app.utils.jwt_utils import generate_tokens
 
 
