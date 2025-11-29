@@ -1,7 +1,9 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from config import Config
 from flask_cors import CORS
 from flask_migrate import Migrate
+
+from werkzeug.exceptions import HTTPException
 
 # Import extensions
 from .extensions.db import db
@@ -40,6 +42,16 @@ def create_app():
         response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         return response
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_error(error):
+        """Convert unhandled exceptions into JSON so the frontend never sees an HTML error page."""
+        if isinstance(error, HTTPException):
+            # Let Flask handle known HTTP exceptions (404, 401, etc.) using its default machinery
+            return error
+
+        app.logger.exception("Unhandled exception during request")
+        return jsonify({"message": "Internal server error"}), 500
 
     # Initialize extensions
     db.init_app(app)
