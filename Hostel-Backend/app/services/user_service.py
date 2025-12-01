@@ -64,6 +64,7 @@ class UserService:
             # Manually create the Landlord object and assign properties
             # to avoid issues with the model's constructor.
             landlord = Landlord()
+            landlord.user_id = user_id
             landlord.user = user
             for key, value in landlord_data.items():
                 setattr(landlord, key, value)
