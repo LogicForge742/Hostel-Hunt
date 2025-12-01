@@ -66,8 +66,27 @@ class UserService:
             landlord = Landlord()
             landlord.user_id = user_id
             landlord.user = user
+
+            # Only allow safe, non-relational fields from the payload to be
+            # set on the landlord instance. This prevents accidental
+            # overriding of critical fields like user_id, id, rating, etc.
+            # For example, if a client sends `user_id: null` in the JSON
+            # body, we must not overwrite the correct foreign key.
+            protected_fields = {
+                'id',
+                'user_id',
+                'created_at',
+                'updated_at',
+                'rating',
+                'review_count',
+                'is_verified',
+            }
+
             for key, value in landlord_data.items():
-                setattr(landlord, key, value)
+                if key in protected_fields:
+                    continue
+                if hasattr(landlord, key):
+                    setattr(landlord, key, value)
 
             db.session.add(landlord)
             db.session.commit()
