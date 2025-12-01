@@ -216,4 +216,4 @@ def update_user_role(user_id):
         status_code = 403 if "Unauthorized" in str(e) else 400
         return jsonify({"message": str(e)}), status_code
     except Exception:
-        return jsonify({"message": f"Failed to update
+        return jsonify({"message": f"Failed to update role for user {user_id}"}),
