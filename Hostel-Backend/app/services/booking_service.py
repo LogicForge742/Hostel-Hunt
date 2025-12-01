@@ -43,7 +43,8 @@ class BookingService:
 
             db.session.add(booking)
             db.session.commit()
-            return booking.to_dict()
+            # Return the Booking object itself, not a dict
+            return booking
         except Exception as e:
             db.session.rollback()
             raise e

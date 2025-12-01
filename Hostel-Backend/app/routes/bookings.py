@@ -42,9 +42,10 @@ def create_booking():
         )
 
         # Send notifications
-        NotificationService.notify_booking_created(booking)
+        # Pass the full booking object to the notification service
+        NotificationService.notify_booking_created(booking_obj=booking)
 
-        return jsonify({"message": "Booking created successfully", "booking": booking}), 201
+        return jsonify({"message": "Booking created successfully", "booking": booking.to_dict()}), 201
 
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
@@ -254,5 +255,3 @@ def check_payment_status(booking_id):
 
     except Exception as e:
         return jsonify({"message": "Failed to check payment status", "error": str(e)}), 500
-
-

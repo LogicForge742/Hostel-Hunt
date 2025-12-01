@@ -5,6 +5,20 @@ from ..utils.validator import is_valid_email, is_valid_password, is_valid_phone
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
+#CORS Preflight Support
+@users_bp.route("/profile", methods=["OPTIONS"])
+def profile_options():
+    return "", 200
+
+@users_bp.route("/password", methods=["OPTIONS"])
+def password_options():
+    return "", 200
+
+@users_bp.route("/become-landlord", methods=["OPTIONS"])
+def become_landlord_options():
+    return "", 200
+
+
 @users_bp.get("/profile")
 @jwt_required()
 def get_profile():
@@ -46,7 +60,7 @@ def change_password():
         return jsonify({"message": "Current password and new password are required"}), 400
 
     if not is_valid_password(new_password):
-        return jsonify({"message": "New password must be at least 6 characters"}), 400
+        return jsonify({"message": "Password must be at least 8 characters with uppercase, lowercase, number, and special character"}), 400
 
     try:
         UserService.change_password(user_id, current_password, new_password)

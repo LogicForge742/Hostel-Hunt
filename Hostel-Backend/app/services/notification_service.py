@@ -7,18 +7,21 @@ import json
 
 class NotificationService:
     @staticmethod
-    def notify_booking_created(booking_data):
+    def notify_booking_created(booking_obj):
         """Send notifications when a booking is created"""
         try:
+            # Use the booking object to get related data safely
+            booking_data_dict = booking_obj.to_dict()
+
             # Notify user
             EmailService.send_booking_confirmation(
-                booking_data['user']['email'],
-                booking_data
+                booking_obj.user.email,
+                booking_data_dict
             )
 
             # Notify landlord
-            landlord_email = booking_data['hostel']['landlord']['contact_email'] or booking_data['hostel']['landlord']['user']['email']
-            EmailService.send_landlord_notification(landlord_email, booking_data)
+            landlord_email = booking_obj.hostel.landlord.contact_email or booking_obj.hostel.landlord.user.email
+            EmailService.send_landlord_notification(landlord_email, booking_data_dict)
 
             return True
         except Exception as e:
