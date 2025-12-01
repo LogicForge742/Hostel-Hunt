@@ -24,11 +24,25 @@ class AuthService:
         user.set_password(password)
         db.session.add(user)
 
+        # --- FIX ADDED HERE ---
+        # 1. Flush the session to execute the 'INSERT INTO users' statement.
+        # 2. This makes the database-generated user.id available on the 'user' object.
+        # 3. This ID is now available for the 'landlord' foreign key relationship below.
+        try:
+            db.session.flush()
+        except Exception as e:
+            # If the user insertion fails (e.g., unique constraint violation on ID, though unlikely here),
+            # we need to catch it and stop.
+            db.session.rollback()
+            return None, f"An error occurred during user creation: {str(e)}"
+        # --- END FIX ---
+
+
         try:
             # Create landlord profile if role is landlord
             if role == "landlord":
-                # Use the relationship to link the landlord to the user.
-                # SQLAlchemy will handle setting the user_id after the user is created.
+                # Because the session was flushed, user.id is now a concrete value.
+                # SQLAlchemy will correctly use this ID for the landlord.user_id column.
                 landlord = Landlord(contact_email=email, contact_phone=phone_number)
                 landlord.user = user
                 db.session.add(landlord)
