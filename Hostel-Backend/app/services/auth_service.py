@@ -27,7 +27,10 @@ class AuthService:
         try:
             # Create landlord profile if role is landlord
             if role == "landlord":
-                landlord = Landlord(user_id=user.id, contact_email=email, contact_phone=phone_number)
+                # Use the relationship to link the landlord to the user.
+                # SQLAlchemy will handle setting the user_id after the user is created.
+                landlord = Landlord(contact_email=email, contact_phone=phone_number)
+                landlord.user = user
                 db.session.add(landlord)
 
             # Commit user and landlord (if applicable) in one transaction
