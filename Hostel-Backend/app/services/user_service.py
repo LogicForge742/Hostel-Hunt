@@ -61,10 +61,9 @@ class UserService:
             user.updated_at = datetime.utcnow()
 
             # Create landlord profile
-            landlord = Landlord(
-                user_id=user_id,
-                **landlord_data
-            )
+            # Use the relationship to link the landlord to the user.
+            landlord = Landlord(**landlord_data)
+            landlord.user = user
 
             db.session.add(landlord)
             db.session.commit()
