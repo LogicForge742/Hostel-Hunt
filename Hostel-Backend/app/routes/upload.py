@@ -1,6 +1,7 @@
 import os
 import uuid
-from flask import Blueprint, request, jsonify, current_app, url_for
+from flask import Blueprint, request, jsonify, current_app
+from ..services.cloud_storage_service import S3Service
 
 upload_bp = Blueprint('upload', __name__, url_prefix='/upload')
 
@@ -25,18 +26,14 @@ def upload_file():
         ext = file.filename.rsplit('.', 1)[1].lower()
         filename = f"{uuid.uuid4().hex}.{ext}"
         
-        # 2. Ensure the upload folder exists
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
-        os.makedirs(upload_folder, exist_ok=True)
+        # 2. UPLOAD TO S3 (Persistent Storage)
+        file_url = S3Service.upload_file(file, filename, folder='hostel-images')
         
-        # 3. Save the file
-        file_path = os.path.join(upload_folder, filename)
-        file.save(file_path)
-        
-        # 4. Generate the public URL for this file
-        # This returns something like http://localhost:5000/static/uploads/abc1234.jpg
-        file_url = url_for('static', filename=f'uploads/{filename}', _external=True)
-        
-        return jsonify({"url": file_url}), 200
+        if file_url:
+            # 3. Return the permanent S3 URL to the client
+            # The client should then save this URL to the Hostel model in the database.
+            return jsonify({"url": file_url}), 200
+        else:
+            return jsonify({"message": "Failed to upload file to cloud storage"}), 500
     
     return jsonify({"message": "File type not allowed"}), 400

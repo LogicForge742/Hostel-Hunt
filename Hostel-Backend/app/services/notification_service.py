@@ -10,6 +10,19 @@ class NotificationService:
     def notify_booking_created(booking_obj):
         """Send notifications when a booking is created"""
         try:
+            # Check if relationships are loaded
+            if not booking_obj.user:
+                print(f"Notification failed: User not found for booking {booking_obj.id}")
+                return False
+
+            if not booking_obj.hostel:
+                print(f"Notification failed: Hostel not found for booking {booking_obj.id}")
+                return False
+
+            if not booking_obj.hostel.landlord:
+                print(f"Notification failed: Landlord not found for hostel {booking_obj.hostel.id}")
+                return False
+
             # Use the booking object to get related data safely
             booking_data_dict = booking_obj.to_dict()
 
@@ -19,8 +32,17 @@ class NotificationService:
                 booking_data_dict
             )
 
-            # Notify landlord
-            landlord_email = booking_obj.hostel.landlord.contact_email or booking_obj.hostel.landlord.user.email
+            # Notify landlord - with proper null checks
+            landlord_email = None
+            if booking_obj.hostel.landlord.contact_email:
+                landlord_email = booking_obj.hostel.landlord.contact_email
+            elif booking_obj.hostel.landlord.user and booking_obj.hostel.landlord.user.email:
+                landlord_email = booking_obj.hostel.landlord.user.email
+
+            if not landlord_email:
+                print(f"Notification failed: No email found for landlord of booking {booking_obj.id}")
+                return False
+
             EmailService.send_landlord_notification(landlord_email, booking_data_dict)
 
             return True

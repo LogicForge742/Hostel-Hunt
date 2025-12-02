@@ -8,6 +8,12 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://hostelhunt_user:MoZftYabDPovpcOQjOmE1jjSoS3VuW5P@dpg-d4dgchmmcj7s73e0rme0-a.oregon-postgres.render.com/hostelhunt")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
+      # other config settings
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+    AWS_REGION = os.environ.get('AWS_REGION', 'Oregon (US West)')
+
     # JWT
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwtsecret123")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=180)
