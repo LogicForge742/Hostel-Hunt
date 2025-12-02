@@ -5,7 +5,7 @@ from ..utils.validator import is_valid_email, is_valid_password, is_valid_phone
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
-#CORS Preflight Support
+# CORS Preflight Support
 @users_bp.route("/profile", methods=["OPTIONS"])
 def profile_options():
     return "", 200
@@ -18,14 +18,21 @@ def password_options():
 def become_landlord_options():
     return "", 200
 
+@users_bp.route("/landlord-profile", methods=["OPTIONS"])
+def landlord_profile_options():
+    return "", 200
+
 
 @users_bp.get("/profile")
 @jwt_required()
 def get_profile():
     """Get current user profile"""
     user_id = get_jwt_identity()
-    user = UserService.get_user_by_id(user_id)
-    return jsonify(user), 200
+    try:
+        user = UserService.get_user_by_id(user_id)
+        return jsonify(user), 200
+    except Exception:
+        return jsonify({"message": "User not found"}), 404
 
 @users_bp.put("/profile")
 @jwt_required()
@@ -35,8 +42,8 @@ def update_profile():
     data = request.get_json()
 
     # Validate input data
-    if 'email' in data and not is_valid_email(data['email']):
-        return jsonify({"message": "Invalid email address"}), 400
+    if 'email' in data:
+        return jsonify({"message": "Email cannot be updated via this endpoint"}), 400
     if 'phone_number' in data and not is_valid_phone(data['phone_number']):
         return jsonify({"message": "Invalid phone number"}), 400
 
@@ -67,7 +74,7 @@ def change_password():
         return jsonify({"message": "Password changed successfully"}), 200
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
-    except Exception as e:
+    except Exception:
         return jsonify({"message": "Failed to change password"}), 500
 
 @users_bp.post("/become-landlord")
@@ -92,8 +99,21 @@ def become_landlord():
         return jsonify({"message": "Landlord profile created successfully", "landlord": landlord}), 201
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
-    except Exception as e:
+    except Exception:
         return jsonify({"message": "Failed to create landlord profile"}), 500
+
+@users_bp.get("/landlord-profile")
+@jwt_required()
+def get_landlord_profile():
+    """Get current user's landlord profile"""
+    user_id = get_jwt_identity()
+    try:
+        landlord = UserService.get_landlord_profile_by_user_id(user_id)
+        return jsonify(landlord), 200
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 404
+    except Exception:
+        return jsonify({"message": "Failed to fetch landlord profile"}), 500
 
 @users_bp.put("/landlord-profile")
 @jwt_required()
@@ -107,7 +127,7 @@ def update_landlord_profile():
         return jsonify({"message": "Landlord profile updated successfully", "landlord": landlord}), 200
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
-    except Exception as e:
+    except Exception:
         return jsonify({"message": "Failed to update landlord profile"}), 500
 
 @users_bp.get("/stats")
@@ -119,7 +139,7 @@ def get_user_stats():
     try:
         stats = UserService.get_user_stats(user_id)
         return jsonify(stats), 200
-    except Exception as e:
+    except Exception:
         return jsonify({"message": "Failed to get user stats"}), 500
 
 @users_bp.delete("/account")
@@ -131,7 +151,7 @@ def deactivate_account():
     try:
         UserService.deactivate_account(user_id)
         return jsonify({"message": "Account deactivated successfully"}), 200
-    except Exception as e:
+    except Exception:
         return jsonify({"message": "Failed to deactivate account"}), 500
 
 @users_bp.post("/verify-email")
@@ -142,6 +162,56 @@ def verify_email():
 
     try:
         user = UserService.verify_email(user_id)
+        # Ensure the updated user object is returned
         return jsonify({"message": "Email verified successfully", "user": user}), 200
-    except Exception as e:
+    except Exception:
         return jsonify({"message": "Failed to verify email"}), 500
+
+# --- Admin Endpoints ---
+
+@users_bp.get("/list")
+@jwt_required()
+def get_users_list():
+    """Get list of users (Admin only)"""
+    admin_id = get_jwt_identity()
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    filters = {
+        'role': request.args.get('role'),
+        'is_active': request.args.get('is_active', type=lambda v: v.lower() == 'true' if v else None),
+        'email_verified': request.args.get('email_verified', type=lambda v: v.lower() == 'true' if v else None)
+    }
+    
+    # Filter out None values
+    filters = {k: v for k, v in filters.items() if v is not None}
+
+    try:
+        # UserService.get_users_list handles the admin role check internally
+        users_list = UserService.get_users_list(page=page, per_page=per_page, filters=filters, admin_id=admin_id)
+        return jsonify(users_list), 200
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 403 # Forbidden for non-admins
+    except Exception:
+        return jsonify({"message": "Failed to retrieve user list"}), 500
+
+@users_bp.put("/<int:user_id>/role")
+@jwt_required()
+def update_user_role(user_id):
+    """Update user role (Admin only)"""
+    admin_id = get_jwt_identity()
+    data = request.get_json()
+    new_role = data.get('role')
+
+    if not new_role:
+        return jsonify({"message": "Role field is required"}), 400
+
+    try:
+        user = UserService.update_user_role(user_id, new_role, admin_id)
+        return jsonify({"message": f"User {user_id} role updated to {new_role}", "user": user}), 200
+    except ValueError as e:
+        # Handles "Unauthorized" (non-admin) and "Invalid role"
+        status_code = 403 if "Unauthorized" in str(e) else 400
+        return jsonify({"message": str(e)}), status_code
+    except Exception:
+        # Correctly return an HTTP 500 status code for unhandled exceptions
+        return jsonify({"message": f"Failed to update role for user {user_id}"}),

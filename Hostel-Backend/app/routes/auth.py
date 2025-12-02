@@ -43,6 +43,7 @@ def register():
         email, password, name=name, phone_number=phone_number, role=role
     )
     if error:
+        # AuthService returns specific error message, e.g., "Email already exists"
         return jsonify({"message": error}), 400
 
     return jsonify({"message": "Registration successful", **response}), 201
@@ -55,14 +56,15 @@ def login():
     email = data.get("email")
     password = data.get("password")
 
-    # Validation
-    if not email or not is_valid_email(email):
-        return jsonify({"message": "Invalid email address"}), 400
-    if not password or not is_valid_password(password):
-        return jsonify({"message": "Password must be at least 8 characters with uppercase, lowercase, number, and special character"}), 400
+    # Validation (Only validate format, password complexity check is unnecessary here)
+    if not email or not password:
+        return jsonify({"message": "Email and password are required"}), 400
+    if not is_valid_email(email):
+        return jsonify({"message": "Invalid email address format"}), 400
 
     response, error = AuthService.login(email, password)
     if error:
+        # AuthService returns "Invalid email or password"
         return jsonify({"message": error}), 401
 
     return jsonify({"message": "Login successful", **response}), 200
@@ -72,6 +74,7 @@ def login():
 @auth_bp.post("/refresh")
 @jwt_required(refresh=True)
 def refresh():
+    """Generates a new access token using a valid refresh token."""
     user_id = get_jwt_identity()
     new_access_token = create_access_token(identity=user_id)
     return jsonify({"access_token": new_access_token}), 200
@@ -81,5 +84,6 @@ def refresh():
 @auth_bp.get("/me")
 @jwt_required()
 def me():
+    """A simple protected route to verify authentication."""
     user_id = get_jwt_identity()
     return jsonify({"message": "Authenticated", "user_id": user_id}), 200
