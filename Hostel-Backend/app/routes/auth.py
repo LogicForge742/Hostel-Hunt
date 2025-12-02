@@ -14,7 +14,7 @@ def register_options():
 @auth_bp.route("/login", methods=["OPTIONS"])
 def login_options():
     return "", 200
-# --------------------------------
+# 
 
 
 # Register
